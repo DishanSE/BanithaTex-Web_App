@@ -1,0 +1,119 @@
+.about-container {
+    width: 100%;
+    padding: 50px 10%;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.abouts {
+    position: relative;
+    width: 100%;
+    min-height: 75vh;
+    background: url('../assets/abouts.jpg') no-repeat center center;
+    background-size: cover;
+    color: var(--white);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.abouts-text {
+    text-align: center;
+    max-width: 800px;
+}
+
+.abouts-text h1 {
+    font-size: 60px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.about-content {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.about-image img {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: none;    
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.about-text {
+    flex: 1;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    background: var(--black);
+    color: var(--white);    
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.about-text h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.heading-bar {
+    width: 100px;
+    height: 5px;
+    background: var(--secondary_color);
+    margin: 20px auto;
+}
+
+.about-text p {
+    font-size: 16px;
+    color: var(--text_color);
+    line-height: 1.6;
+}
+
+/* Mission Section */
+.mission-container {
+    width: 100%;
+    padding: 50px 10%;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+  
+  /* Style for each mission box */
+.mission-box {
+    flex: 1;
+    background: var(--primary_color);
+    color: var(--white);
+    padding: 30px;
+    border: 5px solid var(--secondary_color);
+    border-radius: none; 
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+    text-align: left; 
+  }
+  
+  .mission-box h2 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 20px; 
+  }
+
+  .mission-box h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 5px;
+    background: var(--secondary_color); 
+    margin: 10px 0 30px 0;
+  }
+  
+  .mission-box p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text_color);
+    margin-bottom: 10px;
+  }

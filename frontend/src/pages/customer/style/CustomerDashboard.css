@@ -1,0 +1,10 @@
+.cutomer-dashboard {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    padding-top: 20%;
+    padding-bottom: 20%;
+    color: var(--white);
+    font-size: 60px;
+}
