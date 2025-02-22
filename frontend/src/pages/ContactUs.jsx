@@ -1,9 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../styles/ContactUs.css';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 import Conatct from '../assets/contact.webp'
+import { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
+
+
 
 const ContactUs = () => {
+  const form = useRef();
+  const [message, setMessage] = useState('');
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    emailjs.sendForm(
+      'service_y735w6y',
+      'template_cm5s1c9',
+      form.current,
+      'v5_uYGX1TuCTy3rBJ'
+    )
+    .then(
+      (result) => {
+        console.log(result.text);
+        setMessage('Message sent successfully!');
+      },
+      (error) => {
+        console.log(error.text);
+        setMessage('Failed to send message. Try again later.');
+      }
+    );
+    e.target.reset();
+  };
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   return (
     <>
     <div className="contact container">
@@ -53,15 +90,16 @@ const ContactUs = () => {
       </div>
 
       <div className="contact-form">
-        <form action="">
+        <form ref={form} onSubmit={sendEmail}>
           <div className='form-row'>
-            <input type="text" placeholder="Name" required/>
-            <input type="tel" placeholder="Phone" No required/>
+            <input type="text" name='user_name' placeholder="Name" required/>
+            <input type="tel" name='user_phone' placeholder="Phone" No required/>
           </div>
-          <input type="email" placeholder="Email" required/>
-          <textarea placeholder="Message" rows={4} required></textarea>
+          <input type="email" name='user_email' placeholder="Email" required/>
+          <textarea name='message' placeholder="Message" rows={4} required></textarea>
           <button type='submit'>CONTACT US</button>
         </form>
+        {message && <p className="message-feedback">{message}</p>}
       </div>
     </div>
 
