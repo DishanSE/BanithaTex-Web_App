@@ -7,7 +7,7 @@ require('dotenv').config();
 // Signup logic
 exports.signup = async (req, res) => {
     try {
-        const { first_name, last_name, email, gender, contact_no, password } = req.body;
+        const { first_name, last_name, email, gender, contact_no, password, role } = req.body;
 
         // Check if user already exists
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -15,14 +15,19 @@ exports.signup = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Validate role (only allow 'customer' or 'admin')
+        if (role && !['customer', 'admin'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 
-        // Insert user into database
+        // Insert user into database with the correct role
         await db.query(
             'INSERT INTO users (first_name, last_name, email, gender, contact_no, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [first_name, last_name, email, gender, contact_no, passwordHash, 'customer']
+            [first_name, last_name, email, gender, contact_no, passwordHash, role || 'customer']
         );
 
         res.status(201).json({ message: 'User registered successfully' });

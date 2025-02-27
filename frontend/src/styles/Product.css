@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   min-height: 75vh;
-  background: url('../assets/product/product_background.jpg') no-repeat center center;
+  background: url('../assets/product_background.jpg') no-repeat center center;
   background-size: cover;
   color: var(--white);
   overflow: hidden;

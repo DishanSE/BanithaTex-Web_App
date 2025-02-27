@@ -5,6 +5,7 @@ const productRoutes = require('./routes/productRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const {authenticate, isAdmin} = require('./midleware/authMiddleware');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', authenticate, isAdmin);
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 module.exports = app;
