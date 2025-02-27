@@ -1,8 +1,6 @@
-const express = require('express');
 const dotenv = require('dotenv');
 const db = require('./config/db');
 const app = require('./app');
-const multer = require('multer');
 
 // Load environment variables
 dotenv.config();
@@ -31,21 +29,4 @@ process.on('unhandledRejection', (err) => {
     server.close(() => {
         process.exit(1);
     });
-});
-
-// Configure multer to save files in the "uploads" folder
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-
-const upload = multer({ storage });
-
-// API endpoint to handle image uploads
-app.post('/api/upload', upload.single('image'), (req, res) => {
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
 });
