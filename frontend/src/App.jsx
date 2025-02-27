@@ -5,6 +5,7 @@ import Login from './components/Login.jsx';
 import Home from './pages/Home.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import Product from './pages/Product.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
 import ContactUs from './pages/ContactUs.jsx';
 import Cart from './pages/Cart.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -25,6 +26,7 @@ const App = () => {
                     <Route path="/" element={<Home/>} />
                     <Route path='/about' element={<AboutUs />} />
                     <Route path='/product' element={<Product />} />
+                    <Route path='/product/:id' element={<ProductDetail />} />
                     <Route path='/contact' element={<ContactUs/>} />
                     <Route path='/cart' element={<Cart />} />
                     <Route

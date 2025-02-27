@@ -35,6 +35,15 @@
   color: var(--white);
 }
 
+.yarn-type h2::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 5px;
+  background: var(--secondary_color);
+  margin: 10px left 60px;
+}
+
 .products-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

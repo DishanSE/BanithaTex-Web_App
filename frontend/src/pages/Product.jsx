@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/Product.css';
+import { useNavigate } from 'react-router-dom';
 
 const Product = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     // Fetch products from the backend
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/api/products');
-                setProducts(response.data); // Store the fetched products in state
+                setProducts(response.data);
                 setLoading(false);
             } catch (err) {
                 setError('Failed to fetch products');
@@ -28,13 +30,9 @@ const Product = () => {
     // Group products by type_name and ensure unique product names within each type
     const groupedProducts = products.reduce((acc, product) => {
         const typeName = product.type_name;
-
-        // Ensure the type exists in the accumulator
         if (!acc[typeName]) {
             acc[typeName] = {};
         }
-
-        // Add only the first occurrence of each product name
         if (!acc[typeName][product.name]) {
             acc[typeName][product.name] = product;
         }
@@ -52,7 +50,7 @@ const Product = () => {
 
             {/* Render products grouped by type */}
             {Object.keys(groupedProducts).map((type) => {
-                const uniqueProducts = Object.values(groupedProducts[type]); // Convert grouped products to an array
+                const uniqueProducts = Object.values(groupedProducts[type]);
 
                 return (
                     <section key={type} className="yarn-type">
@@ -63,7 +61,7 @@ const Product = () => {
                                     {/* Use the image URL from the database */}
                                     <img src={`http://localhost:5000${product.image_url}`} alt={product.name} />
                                     <h3>{product.name}</h3>
-                                    <button className="buy-now">Buy Now</button>
+                                    <button onClick={() => navigate(`/product/${product.id}`)} className="buy-now">Buy Now</button>
                                 </div>
                             ))}
                         </div>

@@ -50,6 +50,10 @@ exports.getProductById = async (req, res) => {
             WHERE p.id = ?
         `, [req.params.id]);
         if (rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+
+        const product = rows[0];
+        product.price = parseFloat(product.price);
+        
         res.status(200).json(rows[0]);
     } catch (error) {
         res.status(500).json({ message: error.message });
