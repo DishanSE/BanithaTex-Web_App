@@ -1,0 +1,118 @@
+/* Product Detail Page */
+.product-detail {
+    padding: 150px 10%; /* Padding around the page */
+    background: var(--light_gray); /* Light gray background */
+}
+
+/* Product Container */
+.product-container {
+    display: flex; /* Two-column layout */
+    gap: 30px; /* Space between image and details */
+    align-items: flex-start; /* Align items at the top */
+}
+
+/* Left Side: Image */
+.product-image {
+    flex: 1; /* Take up 50% of the width */
+    max-width: 50%; /* Ensure it doesn't exceed 50% */
+}
+
+.product-image img {
+    width: 100%; /* Full width image */
+    height: 100%; /* Maintain aspect ratio */
+    border-radius: none; /* Rounded corners */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Right Side: Details */
+.product-info {
+    flex: 1; /* Take up 50% of the width */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between elements */
+}
+
+.product-info .name {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--white);
+    margin: 0; /* Remove default margin */
+}
+
+.product-info .price {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--secondary_color);
+    margin: 0; /* Remove default margin */
+}
+
+/* Form Group Styling */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Space between label and input */
+    color: var(--white);
+}
+
+.form-group label {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--white);
+}
+
+.form-group select, input {
+    padding: 10px;
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%; /* Full width input */
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    gap: 15px; /* Space between buttons */
+}
+
+.buyy,
+.add-to-cart {
+    flex: 1; /* Equal width for both buttons */
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buyy {
+    background: var(--secondary_color);
+    color: var(--white);
+}
+
+.buyy:hover {
+    background: var(--btn_hover);
+}
+
+.add-to-cart {
+    background: var(--primary_color);
+    color: var(--white);
+}
+
+.add-to-cart:hover {
+    background: var(--btn_hover);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-container {
+        flex-direction: column; /* Stack image and details vertically */
+        gap: 20px; /* Reduce gap */
+    }
+
+    .product-image,
+    .product-info {
+        max-width: 100%; /* Full width for stacked layout */
+    }
+}

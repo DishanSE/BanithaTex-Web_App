@@ -10,6 +10,7 @@ exports.getProducts = async (req, res) => {
                 p.name, 
                 p.description, 
                 p.price, 
+                p.color,
                 p.stock_quantity, 
                 p.image_url,
                 yt.name AS type_name,
@@ -40,6 +41,7 @@ exports.getProductById = async (req, res) => {
                 p.name, 
                 p.description, 
                 p.price, 
+                p.color,
                 p.stock_quantity, 
                 p.image_url,
                 yt.name AS type_name,
@@ -60,6 +62,54 @@ exports.getProductById = async (req, res) => {
     }
 };
 
+// Fetch available colors for a product
+exports.getProductColors = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query(`
+            SELECT DISTINCT p1.color 
+            FROM products p1
+            JOIN products p2 ON p1.name = p2.name
+            WHERE p2.id = ?
+        `, [id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No colors found for this product' });
+        }
+
+        const colors = rows.map(row => row.color);
+        res.status(200).json(colors);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// Fetch available count values for a product
+exports.getProductCounts = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query(
+            `SELECT DISTINCT yc.count_value 
+             FROM products p
+             JOIN yarn_counts yc ON p.count_id = yc.id
+             WHERE p.name = (SELECT name FROM products WHERE id = ?)`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No matching products found" });
+        }
+
+        const counts = rows.map(row => row.count_value);
+        res.status(200).json(counts);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+
 // Add a new product
 exports.addProduct = async (req, res) => {
     try {
@@ -75,8 +125,8 @@ exports.addProduct = async (req, res) => {
 
         // Insert the new product
         const [result] = await db.query(
-            'INSERT INTO products (name, description, price, stock_quantity, image_url, type_id, count_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [name, description, price, stock_quantity, image_url, type_id, count_id]
+            'INSERT INTO products (name, description, price, color, stock_quantity, image_url, type_id, count_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, description, price, color, stock_quantity, image_url, type_id, count_id]
         );
         res.status(201).json({ message: 'Product added successfully!', productId: result.insertId });
     } catch (error) {
@@ -87,7 +137,7 @@ exports.addProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
     try {
-        const { name, description, price, stock_quantity, image_url, type_id, subtype_id, count_id } = req.body;
+        const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = req.body;
 
         // Validate that type_id exists in yarn_types (if provided)
         if (type_id) {
@@ -103,8 +153,8 @@ exports.updateProduct = async (req, res) => {
 
         // Update the product
         const [result] = await db.query(
-            'UPDATE products SET name = ?, description = ?, price = ?, stock_quantity = ?, image_url = ?, type_id = ?, count_id = ? WHERE id = ?',
-            [name, description, price, stock_quantity, image_url, type_id, count_id, req.params.id]
+            'UPDATE products SET name = ?, description = ?, price = ?, color = ?, stock_quantity = ?, image_url = ?, type_id = ?, count_id = ? WHERE id = ?',
+            [name, description, price, color, stock_quantity, image_url, type_id, count_id, req.params.id]
         );
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Product not found' });
         res.status(200).json({ message: 'Product updated successfully' });
