@@ -7,6 +7,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const {authenticate, isAdmin} = require('./midleware/authMiddleware');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const cartRoutes = require('./routes/cartRoutes');
 
 const app = express();
 
@@ -14,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: process.env.FRONTEND_URL,
-    credentials: true
+    credentials: true,
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -26,6 +27,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes)
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', authenticate, isAdmin);
+app.use('/api', cartRoutes);
 
 
 module.exports = app;

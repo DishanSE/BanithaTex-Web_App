@@ -1,27 +1,30 @@
-/* Product Detail Page */
 .product-detail {
-    padding: 150px 10%; /* Padding around the page */
-    background: var(--light_gray); /* Light gray background */
+    padding: 150px 10%;
 }
 
 /* Product Container */
 .product-container {
     display: flex; /* Two-column layout */
     gap: 30px; /* Space between image and details */
-    align-items: flex-start; /* Align items at the top */
+    align-items: stretch; /* Align items at the top */
 }
 
 /* Left Side: Image */
 .product-image {
-    flex: 1; /* Take up 50% of the width */
-    max-width: 50%; /* Ensure it doesn't exceed 50% */
+    flex: 1; 
+    max-width: 50%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .product-image img {
-    width: 100%; /* Full width image */
-    height: 100%; /* Maintain aspect ratio */
-    border-radius: none; /* Rounded corners */
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 100%;
+    height: 410px;
+    object-fit: cover; 
+    border-radius: none; 
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Right Side: Details */
@@ -40,10 +43,16 @@
 }
 
 .product-info .price {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 36px;
+    font-weight: normal;
     color: var(--secondary_color);
     margin: 0; /* Remove default margin */
+}
+
+.product-info .price small {
+    font-size: 16px;
+    font-weight: normal; 
+    color: inherit; 
 }
 
 /* Form Group Styling */
@@ -74,7 +83,7 @@
     gap: 15px; /* Space between buttons */
 }
 
-.buyy,
+.btn-buy-now,
 .add-to-cart {
     flex: 1; /* Equal width for both buttons */
     padding: 10px;
@@ -86,22 +95,48 @@
     transition: background-color 0.3s ease;
 }
 
-.buyy {
+.btn-buy-now {
     background: var(--secondary_color);
-    color: var(--white);
 }
 
-.buyy:hover {
+.btn-buy-now:hover {
     background: var(--btn_hover);
 }
 
 .add-to-cart {
-    background: var(--primary_color);
-    color: var(--white);
+    background: var(--secondary_color);
 }
 
 .add-to-cart:hover {
     background: var(--btn_hover);
+}
+
+.success-message {
+    color: green;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* Similar Products Section */
+.similar-products {
+    margin-top: 75px; /* Space above the section */
+    text-align: left; /* Center align the heading */
+}
+
+.similar-products h2 {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--white);
+    margin-bottom: 30px; /* Space between heading and slider */
+}
+
+.similar-products h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 5px;
+    background: var(--secondary_color);
+    margin: 10px 0 30px 0;
 }
 
 /* Responsive Design */

@@ -86,25 +86,34 @@ exports.getProductColors = async (req, res) => {
 
 
 // Fetch available count values for a product
+// backend/controllers/productController.js
 exports.getProductCounts = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Validate product_id
+        if (!id || isNaN(parseInt(id))) {
+            return res.status(400).json({ message: "Invalid product ID." });
+        }
+
+        // Fetch counts for the product
         const [rows] = await db.query(
-            `SELECT DISTINCT yc.count_value 
-             FROM products p
-             JOIN yarn_counts yc ON p.count_id = yc.id
-             WHERE p.name = (SELECT name FROM products WHERE id = ?)`,
+            `SELECT yc.id, yc.count_value 
+             FROM product_yarn_counts pyc
+             JOIN yarn_counts yc ON pyc.yarn_count_id = yc.id
+             WHERE pyc.product_id = ?`,
             [id]
         );
 
+        // Return the counts
         if (rows.length === 0) {
-            return res.status(404).json({ message: "No matching products found" });
+            return res.status(404).json({ message: "No counts found for this product." });
         }
 
-        const counts = rows.map(row => row.count_value);
-        res.status(200).json(counts);
+        res.json(rows);
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error fetching product counts:", error);
+        res.status(500).json({ message: "Failed to fetch product counts." });
     }
 };
 

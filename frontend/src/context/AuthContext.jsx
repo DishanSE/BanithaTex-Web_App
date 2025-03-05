@@ -6,17 +6,20 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userRole, setUserRole] = useState(null);
+    const [user, setUser] = useState(null); // Store the full user object
     const [loading, setLoading] = useState(true);
 
     const checkAuth = async () => {
         try {
             const response = await apiClient.get('/auth/user');
+            console.log("Auth Check Response:", response.data); // Debugging
+
             setIsLoggedIn(true);
-            setUserRole(response.data.role);
+            setUser(response.data); // Store the full user object
         } catch (error) {
+            console.error("Auth Check Failed:", error); // Debugging
             setIsLoggedIn(false);
-            setUserRole(null);
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -26,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await apiClient.post('/auth/logout');
             setIsLoggedIn(false);
-            setUserRole(null);
+            setUser(null); // Clear the user object on logout
         } catch (error) {
             console.error('Logout failed:', error);
         }
@@ -37,10 +40,15 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     if (loading) {
-        return <div className='btn'>Loading...</div>
+        return <p>Loading...</p>;
     }
 
-  return (
-    <AuthContext.Provider value={{ isLoggedIn, userRole, checkAuth, logout }}> {children} </AuthContext.Provider>
-  );
+    console.log("isLoggedIn:", isLoggedIn); // Debugging
+    console.log("user:", user); // Debugging
+
+    return (
+        <AuthContext.Provider value={{ isLoggedIn, user, logout, checkAuth }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };

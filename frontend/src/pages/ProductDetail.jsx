@@ -1,26 +1,71 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../styles/ProductDetail.css';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import { Navigation } from 'swiper/modules';
+import { CartContext } from '../context/CartContext.jsx';
+import { AuthContext } from '../context/AuthContext.jsx';
 
 const ProductDetail = () => {
-    const { id } = useParams(); // Get the product ID from the URL
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { cart, addToCart } = useContext(CartContext);
+    const { isLoggedIn } = useContext(AuthContext);
+
+    console.log("isLoggedIn in ProductDetail:", isLoggedIn); // Debugging
+
     const [product, setProduct] = useState(null);
     const [colors, setColors] = useState([]);
     const [counts, setCounts] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for selected options
+    const [selectedColor, setSelectedColor] = useState('');
+    const [selectedCount, setSelectedCount] = useState('');
+    const [quantity, setQuantity] = useState(1);
+    const [calculatedPrice, setCalculatedPrice] = useState(0);
+    const [successMessage, setSuccessMessage] = useState('');
+
+
 
     // Fetch product details, colors, and counts from the backend
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const productResponse = await axios.get(`http://localhost:5000/api/products/${id}`);    
-                const colorsResponse = await axios.get(`http://localhost:5000/api/products/${id}/colors`);    
-                const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts`);
+                const productResponse = await axios.get(`http://localhost:5000/api/products/${id}`);
                 setProduct(productResponse.data);
+                setCalculatedPrice(productResponse.data.price);
+
+                // Handle color
+                if (productResponse.data.color) {
+                    setSelectedColor(productResponse.data.color); // Use the single color value
+                } else {
+                    console.warn("No color available for this product.");
+                    setSelectedColor(""); // Default to empty string if no color exists
+                }
+
+                // Handle count
+                if (productResponse.data.count_value) {
+                    setSelectedCount(productResponse.data.count_value); // Use the single count value
+                } else {
+                    console.warn("No count available for this product.");
+                    setSelectedCount(""); // Default to empty string if no count exists
+                }
+
+                const colorsResponse = await axios.get(`http://localhost:5000/api/products/${id}/colors`);
                 setColors(colorsResponse.data);
+
+                const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts`);
                 setCounts(countsResponse.data);
+
+                const allProductsResponse = await axios.get(`http://localhost:5000/api/products`);
+                setAllProducts(allProductsResponse.data);
+
                 setLoading(false);
             } catch (err) {
                 setError('Failed to fetch product details');
@@ -33,22 +78,67 @@ const ProductDetail = () => {
     if (loading) return <p>Loading product details...</p>;
     if (error) return <p>{error}</p>;
 
+    const similarProducts = allProducts
+        .filter((item) => item.name !== product.name)
+        .slice(0, 4);
+
+    // functionality to handle quantity change
+    const handleQuantityChange = (e) => {
+        const newQuantity = parseInt(e.target.value, 10);
+        if (newQuantity > 0 && newQuantity <= product.stock_quantity) {
+            setQuantity(newQuantity);
+            setCalculatedPrice(product.price * newQuantity);
+        }
+    };
+
+    const handleAddToCart = async () => {
+        if (!isLoggedIn) {
+            alert("Please log in to add items to your cart.");
+            return;
+        }
+    
+        try {
+            const selectedOptions = {
+                color: selectedColor,
+                count: selectedCount, // This is the ID of the selected count value
+                quantity: quantity,
+            };
+    
+            await addToCart(product, selectedOptions);
+            setSuccessMessage(`${product.name} has been added to the cart!`);
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            console.error("Error adding item to cart:", err);
+            alert("Failed to add item to cart. Please try again.");
+        }
+    };
+
+    const handleBuyNow = () => {
+        if (!isLoggedIn) {
+            alert("Please log in to proceed with the purchase.");
+            return;
+        }
+        navigate('/checkout');
+    };
+
+    if (!product) return <p>Loading product details...</p>;
+
     return (
         <>
             <div className="product-detail">
                 <div className="product-container">
                     <div className="product-image">
-                        <img src={`http://localhost:5000${product.image_url}`} alt={product.name} />
+                        <img src={`http://localhost:5000${product?.image_url}`} alt={product.name} />
                     </div>
 
                     <div className="product-info">
                         <h1 className='name'>{product.name}</h1>
-                        <p className="price">Rs. {product.price.toFixed(2)} per kg</p>
+                        <p className="price">Rs. {calculatedPrice.toFixed(2)} <small>(per kg)</small></p>
 
                         {/* Color Dropdown */}
                         <div className="form-group">
                             <label htmlFor="color">Choose Color:</label>
-                            <select id="color" defaultValue={colors[0]}>
+                            <select id="color" value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
                                 {colors.map((color, index) => (
                                     <option key={index} value={color}>
                                         {color}
@@ -60,10 +150,11 @@ const ProductDetail = () => {
                         {/* Count Dropdown */}
                         <div className="form-group">
                             <label htmlFor="count">Choose Count Value:</label>
-                            <select id="count" defaultValue={counts[0]}>
-                                {counts.map((count, index) => (
-                                    <option key={index} value={count}>
-                                        {count}
+                            <select value={selectedCount} onChange={(e) => setSelectedCount(e.target.value)}>
+                                <option value="">Select Count</option>
+                                {counts.map((count) => (
+                                    <option key={count.id} value={count.id}>
+                                        {count.count_value}
                                     </option>
                                 ))}
                             </select>
@@ -77,20 +168,45 @@ const ProductDetail = () => {
                                 id="quantity"
                                 min="1"
                                 max={product.stock_quantity}
-                                defaultValue="1"
+                                value={quantity}
+                                onChange={handleQuantityChange}
                             />
                         </div>
 
                         <div className="buttons">
-                            <button className="buyy">Buy Now</button>
-                            <button className="add-to-cart">Add to Cart</button>
+                            <button className="btn-buy-now" onClick={handleBuyNow}>Buy Now</button>
+                            <button className="add-to-cart" onClick={handleAddToCart}>Add to Cart</button>
                         </div>
+
+                        {successMessage && <p className="success-message"> {successMessage} </p>}
                     </div>
                 </div>
-            </div>
-
-            <div>
-                <h1>Similar Products</h1>
+                <section className="similar-products">
+                    <h2>Similar Products</h2>
+                    <Swiper
+                        modules={[Navigation]}
+                        spaceBetween={20}
+                        slidesPerView={4}
+                        navigation
+                        breakpoints={{
+                            320: { slidesPerView: 1 },
+                            640: { slidesPerView: 2 },
+                            768: { slidesPerView: 3 },
+                            1024: { slidesPerView: 4 },
+                        }}
+                        className='swiper-container'
+                    >
+                        {similarProducts.map((item) => (
+                            <SwiperSlide key={item.id}>
+                                <div className="product-item">
+                                    <img src={`http://localhost:5000${item.image_url}`} alt={item.name} />
+                                    <h3>{item.name}</h3>
+                                    <button onClick={() => navigate(`/product/${item.id}`)} className="buy-now">Buy Now</button>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </section>
             </div>
         </>
     );

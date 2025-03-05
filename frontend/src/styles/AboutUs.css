@@ -40,7 +40,7 @@
     width: 400px;
     height: 400px;
     object-fit: cover;
-    border-radius: none;    
+    border-radius: none;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -52,7 +52,7 @@
     justify-content: center;
     text-align: center;
     background: var(--black);
-    color: var(--white);    
+    color: var(--white);
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -83,37 +83,42 @@
     justify-content: space-between;
     gap: 30px;
 }
-  
-  /* Style for each mission box */
+
+/* Style for each mission box */
 .mission-box {
     flex: 1;
     background: var(--primary_color);
     color: var(--white);
     padding: 30px;
     border: 5px solid var(--secondary_color);
-    border-radius: none; 
+    border-radius: none;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
-    text-align: left; 
-  }
-  
-  .mission-box h2 {
+    text-align: left;
+    transition: transform 0.3s ease;
+}
+
+.mission-box:hover {
+    transform: translateY(-10px);
+}
+
+.mission-box h2 {
     font-size: 40px;
     font-weight: bold;
-    margin-bottom: 20px; 
-  }
+    margin-bottom: 20px;
+}
 
-  .mission-box h2::after {
+.mission-box h2::after {
     content: '';
     display: block;
     width: 100px;
     height: 5px;
-    background: var(--secondary_color); 
+    background: var(--secondary_color);
     margin: 10px 0 30px 0;
-  }
-  
-  .mission-box p {
+}
+
+.mission-box p {
     font-size: 16px;
     line-height: 1.6;
     color: var(--text_color);
     margin-bottom: 10px;
-  }
+}

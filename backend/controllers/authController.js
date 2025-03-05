@@ -85,3 +85,30 @@ exports.logout = (req, res) => {
     res.clearCookie('token');
     res.status(200).json({ message: 'Logout successful' });
 };
+
+exports.getUser = async (req, res) => {
+    try {
+        // Ensure the user is authenticated
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        // Fetch the authenticated user's details from the database
+        const [rows] = await db.query('SELECT id, email, role FROM users WHERE id = ?', [req.user.id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return the user details, including the id
+        const user = rows[0];
+        res.json({
+            id: user.id,
+            email: user.email,
+            role: user.role
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).json({ message: 'Failed to fetch user details' });
+    }
+};
