@@ -12,12 +12,9 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
         try {
             const response = await apiClient.get('/auth/user');
-            console.log("Auth Check Response:", response.data); // Debugging
-
             setIsLoggedIn(true);
             setUser(response.data); // Store the full user object
         } catch (error) {
-            console.error("Auth Check Failed:", error); // Debugging
             setIsLoggedIn(false);
             setUser(null);
         } finally {
@@ -42,9 +39,6 @@ export const AuthProvider = ({ children }) => {
     if (loading) {
         return <p>Loading...</p>;
     }
-
-    console.log("isLoggedIn:", isLoggedIn); // Debugging
-    console.log("user:", user); // Debugging
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, user, logout, checkAuth }}>

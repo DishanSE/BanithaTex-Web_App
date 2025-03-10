@@ -43,7 +43,7 @@ const addToCart = async (product, selectedOptions) => {
             color: selectedOptions.color,
         });
 
-        const response = await apiClient.post('/cart', { // Use apiClient instead of axios
+        const response = await apiClient.post('/cart', { 
             user_id: user.id,
             product_id: product.id,
             quantity: selectedOptions.quantity,

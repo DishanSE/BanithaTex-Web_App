@@ -15,8 +15,6 @@ const ProductDetail = () => {
     const { cart, addToCart } = useContext(CartContext);
     const { isLoggedIn } = useContext(AuthContext);
 
-    console.log("isLoggedIn in ProductDetail:", isLoggedIn); // Debugging
-
     const [product, setProduct] = useState(null);
     const [colors, setColors] = useState([]);
     const [counts, setCounts] = useState([]);
@@ -31,8 +29,6 @@ const ProductDetail = () => {
     const [calculatedPrice, setCalculatedPrice] = useState(0);
     const [successMessage, setSuccessMessage] = useState('');
 
-
-
     // Fetch product details, colors, and counts from the backend
     useEffect(() => {
         const fetchData = async () => {
@@ -43,18 +39,18 @@ const ProductDetail = () => {
 
                 // Handle color
                 if (productResponse.data.color) {
-                    setSelectedColor(productResponse.data.color); // Use the single color value
+                    setSelectedColor(productResponse.data.color);
                 } else {
                     console.warn("No color available for this product.");
-                    setSelectedColor(""); // Default to empty string if no color exists
+                    setSelectedColor("");
                 }
 
                 // Handle count
                 if (productResponse.data.count_value) {
-                    setSelectedCount(productResponse.data.count_value); // Use the single count value
+                    setSelectedCount(productResponse.data.count_value);
                 } else {
                     console.warn("No count available for this product.");
-                    setSelectedCount(""); // Default to empty string if no count exists
+                    setSelectedCount("");
                 }
 
                 const colorsResponse = await axios.get(`http://localhost:5000/api/products/${id}/colors`);
@@ -78,11 +74,14 @@ const ProductDetail = () => {
     if (loading) return <p>Loading product details...</p>;
     if (error) return <p>{error}</p>;
 
-    const similarProducts = allProducts
-        .filter((item) => item.name !== product.name)
-        .slice(0, 4);
+    const similarProducts = [...new Map(
+        allProducts
+            .filter((item) => item.name !== product.name) // Exclude the current product
+            .map((item) => [item.id, item]) // Use the product ID as the key
+    ).values()];
 
-    // functionality to handle quantity change
+    
+    // Handle quantity change
     const handleQuantityChange = (e) => {
         const newQuantity = parseInt(e.target.value, 10);
         if (newQuantity > 0 && newQuantity <= product.stock_quantity) {
@@ -96,14 +95,14 @@ const ProductDetail = () => {
             alert("Please log in to add items to your cart.");
             return;
         }
-    
+
         try {
             const selectedOptions = {
                 color: selectedColor,
-                count: selectedCount, // This is the ID of the selected count value
+                count: selectedCount,
                 quantity: quantity,
             };
-    
+
             await addToCart(product, selectedOptions);
             setSuccessMessage(`${product.name} has been added to the cart!`);
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -178,9 +177,11 @@ const ProductDetail = () => {
                             <button className="add-to-cart" onClick={handleAddToCart}>Add to Cart</button>
                         </div>
 
-                        {successMessage && <p className="success-message"> {successMessage} </p>}
+                        {successMessage && <p className="success-message">{successMessage}</p>}
                     </div>
                 </div>
+
+                {/* Similar Products Section */}
                 <section className="similar-products">
                     <h2>Similar Products</h2>
                     <Swiper
