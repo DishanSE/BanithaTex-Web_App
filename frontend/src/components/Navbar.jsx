@@ -9,7 +9,8 @@ import '../styles/Navbar.css'
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState('');
-  const { isLoggedIn, userRole, logout } = useContext(AuthContext);
+  const { isLoggedIn, user, logout } = useContext(AuthContext);
+  const userRole = user?.role;
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 

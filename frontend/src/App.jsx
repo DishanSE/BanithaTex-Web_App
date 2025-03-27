@@ -12,6 +12,8 @@ import Checkout from './pages/Checkout.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
+import CustomerProfile from './pages/customer/MyProfile.jsx';
+import CustomerOrders from './pages/customer/MyOrders.jsx';
 import Footer from './components/Footer.jsx';
 import Navbar from './components/Navbar.jsx';
 import {AuthProvider} from './context/AuthContext.jsx'
@@ -46,6 +48,22 @@ const App = () => {
                             element={
                                 <ProtectedRoute allowedRoles={['customer']}>
                                     <CustomerDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route 
+                            path='/customer/profile'
+                            element={
+                                <ProtectedRoute allowedRoles={['customer']}>
+                                    <CustomerProfile />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route 
+                            path='/customer/orders'
+                            element={
+                                <ProtectedRoute allowedRoles={['customer']}>
+                                    <CustomerOrders />
                                 </ProtectedRoute>
                             }
                         />

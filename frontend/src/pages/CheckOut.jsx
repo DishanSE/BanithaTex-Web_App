@@ -118,6 +118,7 @@ const Checkout = () => {
                                             src={`http://localhost:5000${item.product_image}`}
                                             alt={item.product_name}
                                         />
+                                        <h3 className="products-name">{item.product_name}</h3>
                                         <p>Rs. {Number(item.price).toFixed(2)}</p>
                                     </div>
                                 ))}
