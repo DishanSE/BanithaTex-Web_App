@@ -118,30 +118,56 @@ exports.getProductCounts = async (req, res) => {
 };
 
 
-
 // Add a new product
 exports.addProduct = async (req, res) => {
+    const connection = await db.getConnection(); // Begin a DB connection
     try {
-        const { name, description, price, stock_quantity, image_url, type_id, subtype_id, count_id } = req.body;
+        const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = req.body;
+
+        // Begin transaction
+        await connection.beginTransaction();
 
         // Validate that type_id exists in yarn_types
-        const [typeRows] = await db.query('SELECT id FROM yarn_types WHERE id = ?', [type_id]);
-        if (typeRows.length === 0) return res.status(400).json({ message: 'Invalid type_id' });
+        const [typeRows] = await connection.query('SELECT id FROM yarn_types WHERE id = ?', [type_id]);
+        if (typeRows.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ message: 'Invalid type_id' });
+        }
 
         // Validate that count_id exists in yarn_counts
-        const [countRows] = await db.query('SELECT id FROM yarn_counts WHERE id = ?', [count_id]);
-        if (countRows.length === 0) return res.status(400).json({ message: 'Invalid count_id' });
+        const [countRows] = await connection.query('SELECT id FROM yarn_counts WHERE id = ?', [count_id]);
+        if (countRows.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ message: 'Invalid count_id' });
+        }
 
         // Insert the new product
-        const [result] = await db.query(
+        const [result] = await connection.query(
             'INSERT INTO products (name, description, price, color, stock_quantity, image_url, type_id, count_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [name, description, price, color, stock_quantity, image_url, type_id, count_id]
         );
-        res.status(201).json({ message: 'Product added successfully!', productId: result.insertId });
+
+        const productId = result.insertId;
+
+        // Now insert into product_yarn_counts table
+        await connection.query(
+            'INSERT INTO product_yarn_counts (product_id, yarn_count_id) VALUES (?, ?)',
+            [productId, count_id]
+        );
+
+        // Commit transaction
+        await connection.commit();
+
+        res.status(201).json({ message: 'Product added successfully!', productId: productId });
     } catch (error) {
+        await connection.rollback();
+        console.error('Error adding product:', error);
         res.status(500).json({ message: error.message });
+    } finally {
+        connection.release(); // Release the DB connection
     }
 };
+
 
 // Update a product
 exports.updateProduct = async (req, res) => {

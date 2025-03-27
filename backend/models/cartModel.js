@@ -10,10 +10,19 @@ const getUserCartId = async (user_id) => {
     return rows[0].id;
 };
 
-// Fetch user's cart items
+// Fetch user's cart items with product name and image
 const getCartItems = async (cart_id) => {
     const [rows] = await db.query(
-        `SELECT ci.id, ci.product_id, ci.quantity, yc.count_value, ci.color, CAST(p.price AS DECIMAL(10, 2)) AS price 
+        `SELECT 
+            ci.id AS cart_item_id,
+            ci.product_id,
+            ci.quantity,
+            ci.color,
+            ci.selected_count_id,
+            yc.count_value,
+            CAST(ci.price AS DECIMAL(10, 2)) AS price,
+            p.name AS product_name,
+            p.image_url AS product_image
          FROM cart_items ci
          JOIN products p ON ci.product_id = p.id
          JOIN yarn_counts yc ON ci.selected_count_id = yc.id
@@ -24,7 +33,7 @@ const getCartItems = async (cart_id) => {
 };
 
 // Add item to cart
-const addItemToCart = async (cart_id, product_id, quantity, selected_count_id, color) => {
+const addItemToCart = async (cart_id, product_id, quantity, selected_count_id, color, price) => {
     // Validate that the selected_count_id exists in the yarn_counts table
     const [countRows] = await db.query('SELECT id FROM yarn_counts WHERE id = ?', [selected_count_id]);
     if (countRows.length === 0) {
@@ -33,9 +42,9 @@ const addItemToCart = async (cart_id, product_id, quantity, selected_count_id, c
 
     // Insert the item into the cart_items table
     await db.query(
-        `INSERT INTO cart_items (cart_id, product_id, quantity, selected_count_id, color)
-         VALUES (?, ?, ?, ?, ?)`,
-        [cart_id, product_id, quantity, selected_count_id, color]
+        `INSERT INTO cart_items (cart_id, product_id, quantity, selected_count_id, color, price)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [cart_id, product_id, quantity, selected_count_id, color, price]
     );
 };
 

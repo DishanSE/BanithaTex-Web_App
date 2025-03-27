@@ -38,8 +38,8 @@ const ProductDetail = () => {
                 setCalculatedPrice(productResponse.data.price);
 
                 // Handle color
-                if (productResponse.data.color) {
-                    setSelectedColor(productResponse.data.color);
+                if (productResponse.data.color_value) {
+                    setSelectedColor(productResponse.data.color_value);
                 } else {
                     console.warn("No color available for this product.");
                     setSelectedColor("");
@@ -80,7 +80,7 @@ const ProductDetail = () => {
             .map((item) => [item.id, item]) // Use the product ID as the key
     ).values()];
 
-    
+
     // Handle quantity change
     const handleQuantityChange = (e) => {
         const newQuantity = parseInt(e.target.value, 10);
@@ -137,7 +137,8 @@ const ProductDetail = () => {
                         {/* Color Dropdown */}
                         <div className="form-group">
                             <label htmlFor="color">Choose Color:</label>
-                            <select id="color" value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
+                            <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
+                                <option value="">Select Color</option>
                                 {colors.map((color, index) => (
                                     <option key={index} value={color}>
                                         {color}

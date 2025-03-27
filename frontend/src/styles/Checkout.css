@@ -1,0 +1,199 @@
+.checkout-page {
+    display: flex;
+    flex-direction: column;
+    padding: 150px;
+    font-family: Arial, sans-serif;
+}
+
+.checkout-page h1 {
+    color: var(--white);
+}
+
+.checkout-container {
+    display: flex;
+    gap: 30px; /* Gap between left and right sides */
+    margin-top: 20px;
+}
+
+/* Left Side Styling */
+.left-side {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Gap between the three divs */
+}
+
+/* Shipping Address Section */
+.shipping-address {
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4); /* Shadow effect */
+}
+
+.shipping-address h2 {
+    margin-bottom: 10px;
+    color: var(--white);
+}
+
+.shipping-address textarea {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 1px solid #fff; /* Transparent input with white bottom line */
+    background: transparent;
+    outline: none;
+    resize: none;
+    font-size: 16px;
+    color: var(--white);
+}
+
+/* Payment Method Section */
+.payment-method {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.payment-method h2 {
+    margin-bottom: 10px;
+    color: var(--white);
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column; /* Keep radio buttons in vertical order */
+    gap: 10px;
+    align-items: flex-start; /* Align items to the left */
+}
+
+.radio-group label {
+    display: flex; /* Ensure radio button and text are inline */
+    align-items: center; /* Vertically align radio button and text */
+    gap: 10px; /* Space between radio button and text */
+    font-size: 16px;
+    color: var(--white);
+}
+
+/* Style for the radio button */
+.radio-group input[type="radio"] {
+    margin: 0; /* Remove default margin */
+    width: 16px; /* Set consistent size */
+    height: 16px; /* Set consistent size */
+}
+
+/* Item Details Section */
+.item-details {
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.item-details h2 {
+    margin-bottom: 15px;
+    color: var(--white);
+}
+
+.yarn-items {
+    display: flex;
+    gap: 20px; /* Horizontal gap between items */
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+    padding-bottom: 10px;
+}
+
+.yarn-item {
+    flex: none; /* Prevent items from stretching */
+    width: 150px; /* Fixed width for each item */
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.yarn-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.yarn-item h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: var(--white);
+}
+
+.yarn-item p {
+    font-size: 14px;
+    margin: 5px 0;
+    color: var(--white);
+}
+
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+/* Modal Content */
+.modal-content {
+    background: var(--primary_color); /* Primary background color */
+    color: #fff; /* White text */
+    padding: 20px;
+    border-radius: 8px;
+    width: 600px; /* Adjust width as needed */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.close-btn {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #ccc; /* Lighter color on hover */
+}
+
+/* Form Grid Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 15px; /* Space between inputs */
+}
+
+/* Form Group Styling */
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #333; /* Dark text for better visibility in inputs */
+    background: #fff; /* White background for inputs */
+}
+
+.save {
+    margin-top: 20px;
+}

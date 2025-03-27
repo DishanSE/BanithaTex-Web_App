@@ -4,13 +4,11 @@ const cartController = require('../controllers/cartController');
 
 // Fetch user's cart
 router.get('/cart', (req, res, next) => {
-    console.log("GET /api/cart hit with query:", req.query); // Debugging
     next();
 }, cartController.getCart);
 
 // Add item to cart
 router.post('/cart', (req, res, next) => {
-    console.log("POST /api/cart hit with body:", req.body); // Debugging
     next();
 }, cartController.addItemToCart);
 

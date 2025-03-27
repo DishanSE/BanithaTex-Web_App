@@ -76,6 +76,7 @@ CREATE TABLE cart_items (
     quantity INT NOT NULL,
     selected_count_id INT NOT NULL,
     color VARCHAR(50),
+    price DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
@@ -109,4 +110,12 @@ CREATE TABLE order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (selected_count_id) REFERENCES yarn_counts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE product_yarn_counts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    yarn_count_id INT NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (yarn_count_id) REFERENCES yarn_counts(id) ON DELETE CASCADE
 );

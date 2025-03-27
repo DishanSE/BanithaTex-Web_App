@@ -1,15 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { CartContext } from '../context/CartContext.jsx';
+import Summary from '../components/Summary.jsx';
 import { useNavigate } from 'react-router-dom';
-import Pay from '../assets/pay.png';
-import COD from '../assets/cod.png';
 import { ImBin } from "react-icons/im";
 import '../styles/Cart.css';
 
 const Cart = () => {
     const { cart, removeFromCart, clearCart } = useContext(CartContext);
-    const navigate = useNavigate();
     const [selectedItems, setSelectedItems] = useState([]);
+    const navigate = useNavigate();
 
     // Handle checkbox selection
     const handleSelectItem = (itemId, isChecked) => {
@@ -27,16 +26,6 @@ const Cart = () => {
         const selectedProducts = cart.filter((item) => selectedItems.includes(item.cart_item_id));
         navigate('/checkout', { state: { selectedProducts } });
     };
-
-    // Calculate subtotal
-    const calculateSubtotal = () => {
-        const selectedCart = cart.filter((item) => selectedItems.includes(item.cart_item_id));
-        return selectedCart.reduce((total, item) => total + Number(item.price) * item.quantity, 0);
-    };
-
-    const subtotal = calculateSubtotal();
-    const shippingFee = 50;
-    const estimatedTotal = subtotal + shippingFee;
 
     return (
         <div className="cart-page">
@@ -87,42 +76,10 @@ const Cart = () => {
 
                 {/* Right Side: Summary and Payment Options */}
                 <div className="right-side">
-                    <div className="summary">
-                        <h2>Summary</h2>
-                        <div className="summary-details">
-                            <p>
-                                <strong>Subtotal:</strong> Rs. {subtotal.toFixed(2)}
-                            </p>
-                            <p>
-                                <strong>Shipping Fee:</strong> Rs. {shippingFee.toFixed(2)}
-                            </p>
-                            <p>
-                                <strong>Estimated Total:</strong> Rs. {estimatedTotal.toFixed(2)}
-                            </p>
-                        </div>
-                        <button onClick={handleCheckout} className="checkout btn">
-                            Checkout Selected Items
-                        </button>
-                    </div>
-
-                    {/* Payment Options */}
-                    <div className="payment-options">
-                        <h3>Pay With</h3>
-                        <div className="payment-icons">
-                            <img
-                                className="pay"
-                                src={Pay}
-                                alt="Card Payment"
-                                title="Card Payment"
-                            />
-                            <img
-                                className="cod"
-                                src={COD}
-                                alt="Cash on Delivery"
-                                title="Cash on Delivery"
-                            />
-                        </div>
-                    </div>
+                    <Summary selectedItems={selectedItems} 
+                    cart={cart} 
+                    onButtonClick={handleCheckout} 
+                    buttonText="Checkout" />
                 </div>
             </div>
         </div>

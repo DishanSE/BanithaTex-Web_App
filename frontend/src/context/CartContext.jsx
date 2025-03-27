@@ -35,12 +35,14 @@ const addToCart = async (product, selectedOptions) => {
     }
 
     try {
+        const calculatedPrice = product.price * selectedOptions.quantity;
         console.log("Adding item to cart:", {
             user_id: user.id,
             product_id: product.id,
             quantity: selectedOptions.quantity,
             selected_count_id: selectedOptions.count,
             color: selectedOptions.color,
+            price: calculatedPrice,
         });
 
         const response = await apiClient.post('/cart', { 
@@ -49,6 +51,7 @@ const addToCart = async (product, selectedOptions) => {
             quantity: selectedOptions.quantity,
             selected_count_id: selectedOptions.count,
             color: selectedOptions.color,
+            price: calculatedPrice,
         });
 
         console.log("API Response:", response.data);
