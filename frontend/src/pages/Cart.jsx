@@ -29,14 +29,6 @@ const Cart = () => {
         navigate('/checkout', { state: { selectedProducts } });
     };
 
-    // Handle Remove Button Click with Confirmation
-    const handleRemoveItem = (itemId) => {
-        const isConfirmed = window.confirm("Are you sure you want to remove this item from your cart?");
-        if (isConfirmed) {
-            removeFromCart(itemId); // Call the removeFromCart function only if confirmed
-        }
-    };
-
     return (
         <div className="cart-page">
             <div className="cart-container">

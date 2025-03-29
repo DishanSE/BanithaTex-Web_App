@@ -1,12 +1,16 @@
-import React, { useContext, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext.jsx';
+import axios from 'axios';
 import Summary from '../components/Summary'
 import '../styles/Checkout.css';
 
 const Checkout = () => {
     const { cart, clearCart } = useContext(CartContext);
+    const { isLoggedIn, user } = useContext(AuthContext);
     const location = useLocation();
+    const navigate = useNavigate();
     const selectedProducts = location.state?.selectedProducts || [];
 
     // State for shipping address, payment method, and modal visibility
@@ -21,25 +25,33 @@ const Checkout = () => {
     });
 
     const handlePlaceOrder = async () => {
+        if (!isLoggedIn) {
+            alert("Please log in to place an order.");
+            return;
+        }
+
         try {
-            if (!shippingAddress.trim()) {
-                alert("Please enter a valid shipping address.");
-                return;
-            }
+            const orderData = {
+                user_id: user.id,
+                shipping_address: shippingAddress,
+                payment_method: paymentMethod,
+                cart: selectedProducts.map((item) => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity,
+                    selected_count_id: item.selected_count_id,
+                    color: item.color,
+                    price: item.price,
+                })),
+            };
 
-            if (paymentMethod === 'card') {
-                setIsModalOpen(true);
-            } else {
-                console.log("Placing order with the following details:");
-                console.log("Shipping Address:", shippingAddress);
-                console.log("Payment Method:", paymentMethod);
-                console.log("Selected Products:", selectedProducts);
+            const response = await axios.post('http://localhost:5000/api/orders', orderData);
 
-                alert("Order placed successfully!");
-                clearCart()
-            }
+            clearCart(); // Clear cart after successful order placement
+            alert("Order placed successfully!");
+            navigate('/customer/orders'); // Redirect to the orders page
         } catch (err) {
-            console.error("Error placing order:", err);
+            console.error("Error placing order:", err.response?.data || err.message);
+            alert("Failed to place order. Please try again.");
         }
     };
 
@@ -53,7 +65,7 @@ const Checkout = () => {
         alert("Order placed succesfully!..");
         setIsModalOpen(false);
         clearCart();
-    }
+    }    
 
     return (
         <div className="checkout-page">

@@ -41,7 +41,6 @@ const ProductDetail = () => {
                 if (productResponse.data.color_value) {
                     setSelectedColor(productResponse.data.color_value);
                 } else {
-                    console.warn("No color available for this product.");
                     setSelectedColor("");
                 }
 
@@ -117,7 +116,21 @@ const ProductDetail = () => {
             alert("Please log in to proceed with the purchase.");
             return;
         }
-        navigate('/checkout');
+    
+        // Prepare the selected product data
+        const selectedProduct = {
+            cart_item_id: Date.now(), // Temporary ID for the item
+            product_id: product.id,
+            product_name: product.name,
+            product_image: product.image_url,
+            price: calculatedPrice,
+            quantity: quantity,
+            color: selectedColor,
+            selected_count_id: selectedCount,
+        };
+    
+        // Navigate to the checkout page with the selected product
+        navigate('/checkout', { state: { selectedProducts: [selectedProduct] } });
     };
 
     if (!product) return <p>Loading product details...</p>;

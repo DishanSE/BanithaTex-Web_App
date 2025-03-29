@@ -8,6 +8,7 @@ const {authenticate, isAdmin} = require('./midleware/authMiddleware');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes')
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/upload', uploadRoutes)
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', authenticate, isAdmin);
 app.use('/api', cartRoutes);
+app.use('/api', orderRoutes);
 
 
 module.exports = app;

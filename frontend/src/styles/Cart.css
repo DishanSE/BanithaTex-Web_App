@@ -23,7 +23,6 @@
 
 .products-list p {
     margin-top: 10px;
-    text-align: center;
 }
 
 .cart-items {
@@ -49,8 +48,8 @@
 }
 
 .products-image {
-    width: 60px;
-    height: 60px;
+    width: 90px;
+    height: 90px;
     max-width: 100%;
     /* Ensure the image doesn't exceed its container's width */
     object-fit: cover;
@@ -65,7 +64,7 @@
 }
 
 .products-name {
-    font-size: 18px;
+    font-size: 24px;
     margin: 0;
     color: var(--white);
 }
@@ -73,13 +72,13 @@
 .products-details {
     display: flex;
     gap: 10px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .products-price {
     font-weight: bold;
-    font-size: 16px;
-    color: green;
+    font-size: 18px;
+    color: var(--white);
 }
 
 .remove-button {
