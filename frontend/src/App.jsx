@@ -11,6 +11,10 @@ import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import ManageInventory from './pages/admin/ManageInventory.jsx'
+import ManageOrders from './pages/admin/ManageOrders.jsx'
+import ManageUsers from './pages/admin/ManageUsers.jsx'
+import Reports from './pages/admin/Reports.jsx'
 import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
 import CustomerProfile from './pages/customer/MyProfile.jsx';
 import CustomerOrders from './pages/customer/MyOrders.jsx';
@@ -40,6 +44,38 @@ const App = () => {
                             element={
                                 <ProtectedRoute allowedRoles={['admin']}>
                                     <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/inventory"
+                            element={
+                                <ProtectedRoute allowedRoles={['admin']}>
+                                    <ManageInventory />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/orders"
+                            element={
+                                <ProtectedRoute allowedRoles={['admin']}>
+                                    <ManageOrders />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/users"
+                            element={
+                                <ProtectedRoute allowedRoles={['admin']}>
+                                    <ManageUsers />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/reports"
+                            element={
+                                <ProtectedRoute allowedRoles={['admin']}>
+                                    <Reports />
                                 </ProtectedRoute>
                             }
                         />

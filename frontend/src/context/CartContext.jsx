@@ -27,40 +27,40 @@ export const CartProvider = ({ children }) => {
     };
 
 
-// Add item to cart
-const addToCart = async (product, selectedOptions) => {
-    if (!isLoggedIn) {
-        alert("Please log in to add items to your cart.");
-        return;
-    }
+    // Add item to cart
+    const addToCart = async (product, selectedOptions) => {
+        if (!isLoggedIn) {
+            alert("Please log in to add items to your cart.");
+            return;
+        }
 
-    try {
-        const calculatedPrice = product.price * selectedOptions.quantity;
-        console.log("Adding item to cart:", {
-            user_id: user.id,
-            product_id: product.id,
-            quantity: selectedOptions.quantity,
-            selected_count_id: selectedOptions.count,
-            color: selectedOptions.color,
-            price: calculatedPrice,
-        });
+        try {
+            const calculatedPrice = product.price * selectedOptions.quantity;
+            console.log("Adding item to cart:", {
+                user_id: user.id,
+                product_id: product.id,
+                quantity: selectedOptions.quantity,
+                selected_count_id: selectedOptions.count,
+                color: selectedOptions.color,
+                price: calculatedPrice,
+            });
 
-        const response = await apiClient.post('/cart', { 
-            user_id: user.id,
-            product_id: product.id,
-            quantity: selectedOptions.quantity,
-            selected_count_id: selectedOptions.count,
-            color: selectedOptions.color,
-            price: calculatedPrice,
-        });
+            const response = await apiClient.post('/cart', {
+                user_id: user.id,
+                product_id: product.id,
+                quantity: selectedOptions.quantity,
+                selected_count_id: selectedOptions.count,
+                color: selectedOptions.color,
+                price: calculatedPrice,
+            });
 
-        console.log("API Response:", response.data);
-        fetchUserCart(); // Refresh cart after adding an item
-    } catch (err) {
-        console.error("Error adding item to cart:", err.response?.data || err.message);
-        alert("Failed to add item to cart. Please try again.");
-    }
-};
+            console.log("API Response:", response.data);
+            fetchUserCart(); // Refresh cart after adding an item
+        } catch (err) {
+            console.error("Error adding item to cart:", err.response?.data || err.message);
+            alert("Failed to add item to cart. Please try again.");
+        }
+    };
 
     // Remove item from cart
     const removeFromCart = async (itemId) => {
@@ -82,8 +82,15 @@ const addToCart = async (product, selectedOptions) => {
         }
     };
 
+    // Remove specific items from the cart
+    const removeSelectedItems = (selectedCartItemIds) => {
+        setCart((prevCart) =>
+            prevCart.filter((item) => !selectedCartItemIds.includes(item.cart_item_id))
+        );
+    }
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, removeSelectedItems }}>
             {children}
         </CartContext.Provider>
     );

@@ -7,7 +7,8 @@ import Summary from '../components/Summary'
 import '../styles/Checkout.css';
 
 const Checkout = () => {
-    const { cart, clearCart } = useContext(CartContext);
+    const { cart, removeSelectedItems } = useContext(CartContext);
+    const [selectedItems, setSelectedItems] = useState([]);
     const { isLoggedIn, user } = useContext(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
@@ -46,7 +47,12 @@ const Checkout = () => {
 
             const response = await axios.post('http://localhost:5000/api/orders', orderData);
 
-            clearCart(); // Clear cart after successful order placement
+            // Extract cart item IDs from selected products
+            const selectedCartItemIds = selectedProducts.map((item) => item.cart_item_id);
+            removeSelectedItems(selectedCartItemIds); // Remove only selected items
+
+            setSelectedItems([]);
+
             alert("Order placed successfully!");
             navigate('/customer/orders'); // Redirect to the orders page
         } catch (err) {
@@ -62,10 +68,13 @@ const Checkout = () => {
         console.log("Payment Method: ", paymentMethod);
         console.log("Selected Products: ", selectedProducts);
 
+        const selectedCartItemIds = selectedProducts.map((item) => item.cart_item_id);
+        removeSelectedItems(selectedCartItemIds);
+        setSelectedItems([]);
         alert("Order placed succesfully!..");
         setIsModalOpen(false);
-        clearCart();
-    }    
+        navigate('/customer/orders');
+    }
 
     return (
         <div className="checkout-page">
