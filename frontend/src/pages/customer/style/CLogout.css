@@ -1,0 +1,55 @@
+.c-logout-page {
+    display: flex;
+    min-height: 100vh;
+    padding: 10%;
+}
+
+.c-logout-container {
+    margin-left: 260px; /* Space for the sidebar */
+    padding: 40px;
+    width: calc(100% - 300px); /* Adjust width based on sidebar */
+    max-width: 500px; /* Limit the width for better alignment */
+    margin: auto; /* Center the container vertically and horizontally */
+    background: var(--primary_color); /* Primary color for the container */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);/* Subtle shadow for depth */
+    border-radius: 12px; /* Rounded corners */
+    text-align: center; /* Center-align all content */
+}
+
+.c-logout-container h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: var(--white);
+    font-weight: bold;
+}
+
+.logout-info {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    border-radius: 8px; /* Rounded corners for the info box */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Inner shadow for the info box */
+}
+
+.logout-info p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--white);
+    line-height: 1.5; /* Improve readability */
+}
+
+.logout-info button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--primary_color);
+    background: var(--white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+}
+
+.logout-info button:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}

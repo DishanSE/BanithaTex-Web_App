@@ -9,7 +9,7 @@ const Sidebar = ({ userType }) => {
     const customerLinks = [
         { label: 'My Profile', path: '/customer/profile' },
         { label: 'My Orders', path: '/customer/orders' },
-        { label: 'Log Out', path: '/customer/orders' },
+        { label: 'Log Out', path: '/customer/logout' },
     ];
 
     const adminLinks = [
@@ -18,7 +18,7 @@ const Sidebar = ({ userType }) => {
         { label: 'Manage Orders', path: '/admin/orders' },
         { label: 'Manage Users', path: '/admin/users' },
         { label: 'Reports', path: '/admin/reports' },
-        { label: 'Log Out', path: '/admin/reports' },
+        { label: 'Log Out', path: '/admin/logout' },
     ];
 
     const links = userType === 'admin' ? adminLinks : customerLinks;
@@ -32,9 +32,6 @@ const Sidebar = ({ userType }) => {
                         <Link to={link.path}>{link.label}</Link>
                     </li>
                 ))}
-                <li>
-                    <button onClick={() => alert('Logging out...')}>Log Out</button>
-                </li>
             </ul>
         </div>
     );

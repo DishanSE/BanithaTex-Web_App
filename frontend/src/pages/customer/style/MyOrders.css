@@ -1,0 +1,54 @@
+.myorders-page {
+    display: flex;
+    min-height: 100vh;
+    padding: 10%;
+}
+
+.myorders-container {
+    margin-left: 5%; 
+    padding: 20px;
+    width: calc(100% - 280px);
+    background: var(--primary_color);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
+    border-radius: 8px; 
+}
+
+.myorders-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--white);
+    text-align: center;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 10px;
+    text-align: left;
+    color: var(--white);
+}
+
+.orders-table th {
+    background-color: var(--primary_color);
+    font-weight: bold;
+    color: var(--white);
+}
+
+/* Add bottom border to each row */
+/* .orders-table tr {
+    border-bottom: 1px solid #dddddd; 
+} */
+
+/* Remove top and side borders */
+.orders-table tr:last-child {
+    border-bottom: none; /* Remove border for the last row */
+}
+
+.orders-table tr:hover {
+    background-color: #333333;
+}

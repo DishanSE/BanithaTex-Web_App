@@ -6,6 +6,6 @@ const  orderController = require('../controllers/orderController.js');
 router.post('/orders', orderController.placeOrder);
 
 // Fetch User Orders Route
-router.get('/orders', orderController.fetchUserOrders);
+router.get('/users/:id/orders', orderController.getUserOrders);
 
 module.exports = router;

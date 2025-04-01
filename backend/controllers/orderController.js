@@ -71,32 +71,52 @@ exports.placeOrder = async (req, res) => {
 
 
 // Fetch User Orders Controller
-exports.fetchUserOrders = async (req, res) => {
-    const { user_id } = req.query;
+exports.getUserOrders = async (req, res) => {
+    const { id } = req.params;
 
     try {
-        const [orders] = await db.query(
-            `SELECT o.id, o.total_amount, o.status, o.shipping_address, o.payment_method, o.created_at
-             FROM orders o
-             WHERE o.user_id = ?`,
-            [user_id]
-        );
+        const [rows] = await db.query(`
+            SELECT 
+                o.id AS order_id,
+                o.created_at AS placed_on,
+                p.name AS product_name, -- Fetch product name from products table
+                oi.quantity,
+                oi.price,
+                o.status
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id -- Join with products table
+            WHERE o.user_id = ?
+            ORDER BY o.created_at DESC
+        `, [id]);
 
-        const [orderItems] = await db.query(
-            `SELECT oi.order_id, oi.product_id, p.name AS product_name, p.image_url, oi.quantity, oi.color, oi.price
-             FROM order_items oi
-             JOIN products p ON oi.product_id = p.id`
-        );
+        if (!rows.length) {
+            return res.status(404).json({ error: 'No orders found' });
+        }
 
-        // Group order items by order ID
-        const ordersWithItems = orders.map((order) => ({
-            ...order,
-            items: orderItems.filter((item) => item.order_id === order.id),
-        }));
+        // Group items by order ID
+        const orders = rows.reduce((acc, row) => {
+            if (!acc[row.order_id]) {
+                acc[row.order_id] = {
+                    order_id: row.order_id,
+                    placed_on: row.placed_on,
+                    items: [],
+                    total: 0,
+                    status: row.status,
+                };
+            }
+            acc[row.order_id].items.push({
+                product_name: row.product_name,
+                quantity: row.quantity,
+                price: row.price,
+            });
+            acc[row.order_id].total += row.price * row.quantity;
+            return acc;
+        }, {});
 
-        res.json(ordersWithItems);
+        res.json(Object.values(orders));
     } catch (err) {
-        console.error('Error fetching orders:', err);
-        res.status(500).json({ error: 'Failed to fetch orders' });
+        console.error('Error fetching user orders:', err);
+        res.status(500).json({ error: 'Failed to fetch user orders' });
     }
 };
