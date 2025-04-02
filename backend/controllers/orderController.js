@@ -120,3 +120,92 @@ exports.getUserOrders = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch user orders' });
     }
 };
+
+// Fetch All Orders
+exports.getAllOrders = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                o.id AS order_id,
+                u.first_name,
+                u.last_name,
+                p.name AS product_name,
+                p.price,
+                oi.quantity,
+                oi.selected_count_id AS count_value,
+                oi.color,
+                o.created_at AS placed_on,
+                o.total_amount,
+                o.shipping_address,
+                o.payment_method,
+                o.status
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+        `);
+
+        if (!rows.length) {
+            return res.status(404).json({ error: 'No orders found' });
+        }
+
+        // Group items by order ID
+        const orders = rows.reduce((acc, row) => {
+            if (!acc[row.order_id]) {
+                acc[row.order_id] = {
+                    order_id: row.order_id,
+                    first_name: row.first_name,
+                    last_name: row.last_name,
+                    items: [],
+                    total_quantity: 0,
+                    placed_on: row.placed_on,
+                    shipping_address: row.shipping_address,
+                    total_amount: row.total_amount,
+                    payment_method: row.payment_method,
+                    status: row.status,
+                };
+            }
+            acc[row.order_id].items.push({
+                product_name: row.product_name,
+                quantity: row.quantity,
+                count_value: row.count_value,
+                color: row.color,
+                price: row.price,
+            });
+            acc[row.order_id].total_quantity += row.quantity;
+            return acc;
+        }, {});
+
+        res.json(Object.values(orders));
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+};
+
+// Update Order Status
+exports.updateOrderStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+        await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+        res.json({ message: 'Order status updated successfully' });
+    } catch (err) {
+        console.error('Error updating order status:', err);
+        res.status(500).json({ error: 'Failed to update order status' });
+    }
+};
+
+// Delete Order
+exports.deleteOrder = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await db.query('DELETE FROM orders WHERE id = ?', [id]);
+        res.json({ message: 'Order deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting order:', err);
+        res.status(500).json({ error: 'Failed to delete order' });
+    }
+};

@@ -69,3 +69,37 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ error: 'Failed to change password' });
     }
 };
+
+// Fetch All Customers
+exports.getAllCustomers = async (req, res) => {
+    try {
+        // Query the database for users with role = 'customer'
+        const [rows] = await db.query(
+            'SELECT id, first_name, last_name, email, gender, contact_no, created_at FROM users WHERE role = ?',
+            ['customer']
+        );
+
+        if (!rows.length) {
+            return res.status(404).json({ error: 'No customers found' });
+        }
+
+        res.json(rows); // Return the list of customers
+    } catch (err) {
+        console.error('Error fetching customers:', err);
+        res.status(500).json({ error: 'Failed to fetch customers' });
+    }
+};
+
+// Delete Customer
+exports.deleteCustomer = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Ensure only customers can be deleted (not admins)
+        await db.query('DELETE FROM users WHERE id = ? AND role = "customer"', [id]);
+        res.json({ message: 'Customer deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting customer:', err);
+        res.status(500).json({ error: 'Failed to delete customer' });
+    }
+};
