@@ -11,6 +11,8 @@
     background: var(--primary_color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     border-radius: 8px;
+    max-height: 600px; /* Limit height */
+    overflow-y: auto;
 }
 
 .heading-container {
@@ -36,6 +38,7 @@
 .inventory-table th {
     font-weight: bold;
     color: var(--white);
+    font-size: 18px;
 }
 
 .inventory-table tr:hover {

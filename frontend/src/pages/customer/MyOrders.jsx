@@ -3,6 +3,7 @@ import axios from 'axios';
 import Sidebar from '../../components/Sidebar';
 import { AuthContext } from '../../context/AuthContext';
 import './style/MyOrders.css';
+import { format } from "date-fns";
 
 const MyOrders = () => {
     const { user, isLoggedIn } = useContext(AuthContext);
@@ -51,7 +52,7 @@ const MyOrders = () => {
                                     <tr>
                                         <td rowSpan={order.items.length}>{order.order_id}</td>
                                         <td rowSpan={order.items.length}>
-                                            {new Date(order.placed_on).toLocaleDateString()}
+                                            {format(new Date(order.placed_on), "MM-dd-yyyy")}
                                         </td>
                                         <td>{order.items[0].product_name}</td>
                                         <td>{order.items[0].quantity}</td>

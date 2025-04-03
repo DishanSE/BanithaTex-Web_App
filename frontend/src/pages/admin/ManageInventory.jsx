@@ -4,11 +4,12 @@ import Sidebar from '../../components/Sidebar';
 import './style/ManageInventory.css';
 import { AiFillEdit } from "react-icons/ai";
 import { ImBin } from "react-icons/im";
+import { parseISO, format } from 'date-fns';
 
 const ManageInventory = () => {
     const [products, setProducts] = useState([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false); // State for Add Modal
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [newProduct, setNewProduct] = useState({
         name: '',
@@ -16,21 +17,19 @@ const ManageInventory = () => {
         price: 0,
         color: '',
         stock_quantity: 0,
-        image_url: '',
+        image: null,
         type_id: '',
         count_id: '',
     });
-    const [yarnTypes, setYarnTypes] = useState([]); // Available yarn types
-    const [yarnCounts, setYarnCounts] = useState([]); // Available yarn counts
+    const [yarnTypes, setYarnTypes] = useState([]);
+    const [yarnCounts, setYarnCounts] = useState([]);
 
-    // Fetch all products, yarn types, and yarn counts
     useEffect(() => {
         fetchProducts();
         fetchYarnTypes();
         fetchYarnCounts();
     }, []);
 
-    // Fetch all products
     const fetchProducts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/products');
@@ -40,7 +39,6 @@ const ManageInventory = () => {
         }
     };
 
-    // Fetch available yarn types
     const fetchYarnTypes = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/products/yarn-types');
@@ -50,7 +48,6 @@ const ManageInventory = () => {
         }
     };
 
-    // Fetch available yarn counts
     const fetchYarnCounts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/products/yarn-counts');
@@ -60,7 +57,6 @@ const ManageInventory = () => {
         }
     };
 
-    // Open modal for editing a product
     const handleEditProduct = (product) => {
         setSelectedProduct(product);
         setIsEditModalOpen(true);
@@ -76,17 +72,17 @@ const ManageInventory = () => {
             await axios.put(`http://localhost:5000/api/products/${id}`, {
                 name,
                 description,
-                price,
+                price: Number(price),
                 color,
-                stock_quantity,
+                stock_quantity: Number(stock_quantity),
                 image_url,
-                type_id,
-                count_id,
+                type_id: Number(type_id),
+                count_id: Number(count_id),
             });
 
             alert('Product updated successfully.');
-            setIsEditModalOpen(false); // Close the modal
-            fetchProducts(); // Refresh the list after updating
+            setIsEditModalOpen(false);
+            fetchProducts();
         } catch (err) {
             console.error('Error updating product:', err.response?.data || err.message);
             alert('Failed to update product. Please try again.');
@@ -98,7 +94,19 @@ const ManageInventory = () => {
         e.preventDefault();
 
         try {
-            const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = newProduct;
+            // Convert the image file to Base64
+            let base64Image = '';
+            if (newProduct.image) {
+                const reader = new FileReader();
+                base64Image = await new Promise((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result.split(',')[1]); // Extract Base64 data
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsDataURL(newProduct.image); // Read the file as Data URL
+                });
+            }
+
+            // Prepare the product data with the Base64-encoded image
+            const { name, description, price, color, stock_quantity, type_id, count_id } = newProduct;
 
             await axios.post('http://localhost:5000/api/products', {
                 name,
@@ -106,7 +114,7 @@ const ManageInventory = () => {
                 price,
                 color,
                 stock_quantity,
-                image_url,
+                image_url: base64Image, // Send the Base64-encoded image
                 type_id,
                 count_id,
             });
@@ -120,7 +128,7 @@ const ManageInventory = () => {
                 price: 0,
                 color: '',
                 stock_quantity: 0,
-                image_url: '',
+                image: null, // Reset the image field
                 type_id: '',
                 count_id: '',
             }); // Reset form fields
@@ -137,7 +145,7 @@ const ManageInventory = () => {
         try {
             await axios.delete(`http://localhost:5000/api/products/${productId}`);
             alert('Product deleted successfully.');
-            fetchProducts(); // Refresh the product list
+            fetchProducts();
         } catch (err) {
             console.error('Error deleting product:', err.response?.data || err.message);
             alert('Failed to delete product. Please try again.');
@@ -148,7 +156,6 @@ const ManageInventory = () => {
         <div className="admin-inventory-page">
             <Sidebar userType="admin" />
             <div className="admin-inventory-container">
-                {/* Heading and Add New Product Button */}
                 <div className="heading-container">
                     <h1>Inventory</h1>
                     <button className="view-details-btn" onClick={() => setIsAddModalOpen(true)}>
@@ -156,34 +163,35 @@ const ManageInventory = () => {
                     </button>
                 </div>
 
-                {/* Products Table */}
                 <table className="inventory-table">
                     <thead>
                         <tr>
-                            <th>Product ID</th>
-                            <th>Name</th>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Type</th>
                             <th>Color</th>
-                            <th>Yarn Type</th>
                             <th>Count Value</th>
-                            <th>Quantity</th>
+                            <th>Available Stock</th>
                             <th>Last Updated</th>
                         </tr>
                     </thead>
                     <tbody>
                         {products.length === 0 ? (
                             <tr>
-                                <td colSpan="8">No products found.</td>
+                                <td colSpan="9">No products found.</td>
                             </tr>
                         ) : (
                             products.map((product) => (
                                 <tr key={product.id}>
                                     <td>{product.id}</td>
                                     <td>{product.name}</td>
-                                    <td>{product.color}</td>
                                     <td>{product.type_name}</td>
+                                    <td>{product.color}</td>
                                     <td>{product.count_value}</td>
-                                    <td>{product.stock_quantity}</td>
-                                    <td>{new Date(product.last_updated).toLocaleDateString()}</td>
+                                    <td>{product.stock_quantity} kg</td>
+                                    <td>
+                                        {product.updated_at ? format(parseISO(product.updated_at), 'MM-dd-yyyy') : 'N/A'}
+                                    </td>
                                     <td>
                                         <button
                                             className='delete-btn'
@@ -229,6 +237,7 @@ const ManageInventory = () => {
                                             name: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -253,9 +262,10 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setSelectedProduct({
                                             ...selectedProduct,
-                                            price: parseFloat(e.target.value),
+                                            price: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -269,6 +279,7 @@ const ManageInventory = () => {
                                             color: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -279,9 +290,10 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setSelectedProduct({
                                             ...selectedProduct,
-                                            stock_quantity: parseInt(e.target.value),
+                                            stock_quantity: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -304,9 +316,10 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setSelectedProduct({
                                             ...selectedProduct,
-                                            type_id: parseInt(e.target.value),
+                                            type_id: e.target.value,
                                         })
                                     }
+                                    required
                                 >
                                     <option value="">Select Yarn Type</option>
                                     {yarnTypes.map((type) => (
@@ -323,9 +336,10 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setSelectedProduct({
                                             ...selectedProduct,
-                                            count_id: parseInt(e.target.value),
+                                            count_id: e.target.value,
                                         })
                                     }
+                                    required
                                 >
                                     <option value="">Select Yarn Count</option>
                                     {yarnCounts.map((count) => (
@@ -365,6 +379,7 @@ const ManageInventory = () => {
                                             name: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -389,9 +404,10 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setNewProduct({
                                             ...newProduct,
-                                            price: parseFloat(e.target.value),
+                                            price: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -405,6 +421,7 @@ const ManageInventory = () => {
                                             color: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -415,34 +432,32 @@ const ManageInventory = () => {
                                     onChange={(e) =>
                                         setNewProduct({
                                             ...newProduct,
-                                            stock_quantity: parseInt(e.target.value),
+                                            stock_quantity: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
-                                Image URL:
+                                Image:
                                 <input
-                                    type="text"
-                                    value={newProduct.image_url}
-                                    onChange={(e) =>
-                                        setNewProduct({
-                                            ...newProduct,
-                                            image_url: e.target.value,
-                                        })
-                                    }
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
                                 />
                             </label>
                             <label>
                                 Yarn Type:
                                 <select
                                     value={newProduct.type_id}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        console.log("Selected type_id:", e.target.value);
                                         setNewProduct({
                                             ...newProduct,
-                                            type_id: parseInt(e.target.value),
-                                        })
-                                    }
+                                            type_id: e.target.value,
+                                        });
+                                    }}
+                                    required
                                 >
                                     <option value="">Select Yarn Type</option>
                                     {yarnTypes.map((type) => (
@@ -456,12 +471,14 @@ const ManageInventory = () => {
                                 Yarn Count:
                                 <select
                                     value={newProduct.count_id}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        console.log("Selected count_id:", e.target.value);
                                         setNewProduct({
                                             ...newProduct,
-                                            count_id: parseInt(e.target.value),
-                                        })
-                                    }
+                                            count_id: e.target.value,
+                                        });
+                                    }}
+                                    required
                                 >
                                     <option value="">Select Yarn Count</option>
                                     {yarnCounts.map((count) => (

@@ -14,11 +14,13 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 // Middleware
-app.use(express.json());
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
 }));
+app.use(express.json({ limit: '10mb' })); // Increase the JSON payload limit to 10 MB
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Increase the URL-encoded payload limit
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(cookieParser());
@@ -32,6 +34,8 @@ app.use('/api/products', authenticate, isAdmin);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', userRoutes);
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 module.exports = app;

@@ -3,6 +3,7 @@ import axios from 'axios';
 import Sidebar from '../../components/Sidebar';
 import { ImBin } from "react-icons/im";
 import './style/ManageOrders.css';
+import { parseISO, format } from 'date-fns';
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -92,7 +93,7 @@ const ManageOrders = () => {
                     ))}
                   </td>
                   <td>{order.total_quantity}</td>
-                  <td>{new Date(order.placed_on).toLocaleDateString()}</td>
+                  <td>{order.placed_on ? format(parseISO(order.placed_on), 'MM-dd-yyyy') : 'N/A'}</td>
                   <td>{order.status}</td>
                   <td>
                     <button
@@ -172,7 +173,7 @@ const ManageOrders = () => {
                           )}
                           {index === 0 && (
                             <td rowSpan={order.items.length}>
-                              {new Date(order.placed_on).toLocaleDateString()}
+                              {format(new Date(order.placed_on), "MM-dd-yyyy")}
                             </td>
                           )}
                           {index === 0 && (

@@ -4,6 +4,7 @@ import Sidebar from '../../components/Sidebar.jsx';
 import './style/ManageUsers.css';
 import { ImBin } from "react-icons/im";
 import { AiFillEdit } from "react-icons/ai";
+import { parseISO, format } from 'date-fns';
 
 const ManageUsers = () => {
   const [customers, setCustomers] = useState([]);
@@ -98,7 +99,9 @@ const ManageUsers = () => {
                   <td>{customer.email}</td>
                   <td>{customer.gender}</td>
                   <td>{customer.contact_no || 'N/A'}</td>
-                  <td>{new Date(customer.created_at).toLocaleDateString()}</td>
+                  <td>
+                    {customer.created_at ? format(parseISO(customer.created_at), 'MM-dd-yyyy') : 'N/A'}
+                  </td>
                   <td>
                     <button
                       className="delete-btn"

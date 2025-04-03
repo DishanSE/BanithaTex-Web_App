@@ -143,6 +143,7 @@ exports.getAllOrders = async (req, res) => {
             JOIN users u ON o.user_id = u.id
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON oi.product_id = p.id
+            ORDER BY o.created_at DESC
         `);
 
         if (!rows.length) {
@@ -176,12 +177,16 @@ exports.getAllOrders = async (req, res) => {
             return acc;
         }, {});
 
-        res.json(Object.values(orders));
+        // Convert object to an array and sort by `placed_on` in descending order (just in case)
+        const sortedOrders = Object.values(orders).sort((a, b) => new Date(b.placed_on) - new Date(a.placed_on));
+
+        res.json(sortedOrders);
     } catch (err) {
         console.error('Error fetching orders:', err);
         res.status(500).json({ error: 'Failed to fetch orders' });
     }
 };
+
 
 // Update Order Status
 exports.updateOrderStatus = async (req, res) => {
