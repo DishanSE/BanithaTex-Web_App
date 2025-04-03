@@ -86,7 +86,6 @@ exports.getProductColors = async (req, res) => {
 
 
 // Fetch available count values for a product
-// backend/controllers/productController.js
 exports.getProductCounts = async (req, res) => {
     try {
         const { id } = req.params;
@@ -206,5 +205,33 @@ exports.deleteProduct = async (req, res) => {
         res.status(200).json({ message: 'Product deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// Fetch All Yarn Types
+exports.getYarnTypes = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, name FROM yarn_types');
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No yarn types found' });
+        }
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching yarn types:', error);
+        res.status(500).json({ message: 'Failed to fetch yarn types' });
+    }
+};
+
+// Fetch All Yarn Counts
+exports.getYarnCounts = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, count_value FROM yarn_counts');
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No yarn counts found' });
+        }
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching yarn counts:', error);
+        res.status(500).json({ message: 'Failed to fetch yarn counts' });
     }
 };
