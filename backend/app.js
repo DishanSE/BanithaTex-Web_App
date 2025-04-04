@@ -11,6 +11,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes')
 const userRoutes = require('./routes/userRoutes');
 const AdminDashboardRoutes = require('./routes/adminDashboardRoutes.js');
+const reportsRoutes = require('./routes/reportsRoutes.js');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', userRoutes);
 app.use('/api/dashboard', AdminDashboardRoutes);
+app.use('/api/reports', reportsRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 

@@ -85,7 +85,7 @@ const AdminDashboard = () => {
                     <div className="card">
                         <FaDollarSign className="card-icon" />
                         <h3>Total Sales</h3>
-                        <p>${parseFloat(stats.totalSales).toFixed(2)}</p>
+                        <p>Rs. {parseFloat(stats.totalSales).toFixed(2)}</p>
                     </div>
                 </div>
 
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
                                         <td>{order.id}</td>
                                         <td>{order.customer_name}</td>
                                         <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                                        <td>${parseFloat(order.total_amount).toFixed(2)}</td>
+                                        <td>Rs. {parseFloat(order.total_amount).toFixed(2)}</td>
                                     </tr>
                                 ))
                             ) : (
