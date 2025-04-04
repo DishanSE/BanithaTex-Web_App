@@ -10,6 +10,7 @@ const path = require('path');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes')
 const userRoutes = require('./routes/userRoutes');
+const AdminDashboardRoutes = require('./routes/adminDashboardRoutes.js');
 
 const app = express();
 
@@ -34,7 +35,7 @@ app.use('/api/products', authenticate, isAdmin);
 app.use('/api', cartRoutes);
 app.use('/api', orderRoutes);
 app.use('/api', userRoutes);
-// Serve static files from the "uploads" directory
+app.use('/api/dashboard', AdminDashboardRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 

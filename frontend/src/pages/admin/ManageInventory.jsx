@@ -166,7 +166,6 @@ const ManageInventory = () => {
                 <table className="inventory-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Product Name</th>
                             <th>Type</th>
                             <th>Color</th>
@@ -183,7 +182,6 @@ const ManageInventory = () => {
                         ) : (
                             products.map((product) => (
                                 <tr key={product.id}>
-                                    <td>{product.id}</td>
                                     <td>{product.name}</td>
                                     <td>{product.type_name}</td>
                                     <td>{product.color}</td>

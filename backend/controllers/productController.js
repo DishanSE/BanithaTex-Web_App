@@ -21,7 +21,7 @@ exports.getProducts = async (req, res) => {
             FROM products p
             JOIN yarn_types yt ON p.type_id = yt.id
             JOIN yarn_counts yc ON p.count_id = yc.id
-            ORDER BY p.id DESC
+            ORDER BY p.updated_at DESC
         `);
 
         const products = rows.map(row => ({
