@@ -2,6 +2,7 @@ const { route } = require('../app.js')
 const db = require('../config/db');
 const path = require('path');
 const fs = require('fs');
+const transporter = require('../config/nodemailer.js');
 
 // Get all products with yarn type, subtype, and count details
 exports.getProducts = async (req, res) => {
@@ -181,29 +182,62 @@ exports.addProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
     try {
+        const { id } = req.params; // Extract product ID from URL
         const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = req.body;
 
-        // Validate that type_id exists in yarn_types (if provided)
+        // Validate required fields
+        if (!name || !description || !price || !color || stock_quantity === undefined || !image_url) {
+            return res.status(400).json({ message: 'All fields are required except type_id and count_id' });
+        }
+
+        // Validate that stock_quantity is a positive number
+        if (stock_quantity < 0 || isNaN(stock_quantity)) {
+            return res.status(400).json({ message: 'Stock quantity must be a non-negative number' });
+        }
+
+        // Validate that price is a positive number
+        if (price <= 0 || isNaN(price)) {
+            return res.status(400).json({ message: 'Price must be a positive number' });
+        }
+
+        // Validate type_id (if provided)
         if (type_id) {
             const [typeRows] = await db.query('SELECT id FROM yarn_types WHERE id = ?', [type_id]);
-            if (typeRows.length === 0) return res.status(400).json({ message: 'Invalid type_id' });
+            if (typeRows.length === 0) {
+                return res.status(400).json({ message: 'Invalid type_id' });
+            }
         }
 
-        // Validate that count_id exists in yarn_counts (if provided)
+        // Validate count_id (if provided)
         if (count_id) {
             const [countRows] = await db.query('SELECT id FROM yarn_counts WHERE id = ?', [count_id]);
-            if (countRows.length === 0) return res.status(400).json({ message: 'Invalid count_id' });
+            if (countRows.length === 0) {
+                return res.status(400).json({ message: 'Invalid count_id' });
+            }
         }
 
-        // Update the product
+        // Update the product in the database
         const [result] = await db.query(
             'UPDATE products SET name = ?, description = ?, price = ?, color = ?, stock_quantity = ?, image_url = ?, type_id = ?, count_id = ? WHERE id = ?',
-            [name, description, price, color, stock_quantity, image_url, type_id, count_id, req.params.id]
+            [name, description, price, color, stock_quantity, image_url, type_id || null, count_id || null, id]
         );
-        if (result.affectedRows === 0) return res.status(404).json({ message: 'Product not found' });
+
+        // Check if the product was found and updated
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Notify admin if stock is below 500 kg
+        if (stock_quantity < 500) {
+            console.log(`ALERT: Stock for product ID ${id} is below 500 kg. Current stock: ${stock_quantity} kg`);
+            await notifyAdminLowStock(id, stock_quantity); // Optional: Send email or log notification
+        }
+
+        // Return success response
         res.status(200).json({ message: 'Product updated successfully' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error updating product:', error);
+        res.status(500).json({ message: 'Server error', details: error.message });
     }
 };
 
@@ -243,5 +277,21 @@ exports.getYarnCounts = async (req, res) => {
     } catch (error) {
         console.error('Error fetching yarn counts:', error);
         res.status(500).json({ message: 'Failed to fetch yarn counts' });
+    }
+};
+
+// Function to notify the admin via email
+const notifyAdminLowStock = async (productId, stockQuantity) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'dishanraj13@gmail.com',
+            subject: 'Low Stock Alert',
+            text: `Product ID ${productId} has low stock: ${stockQuantity} kg`,
+        };
+
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error('Error sending email:', error);
     }
 };
