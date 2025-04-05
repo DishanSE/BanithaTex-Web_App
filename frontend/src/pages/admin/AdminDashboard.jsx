@@ -3,6 +3,7 @@ import axios from 'axios';
 import Sidebar from '../../components/Sidebar';
 import './style/AdminDashboard.css';
 import { FaUsers, FaBoxes, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
+import { format } from "date-fns";
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -106,8 +107,8 @@ const AdminDashboard = () => {
                                 recentOrders.map((order) => (
                                     <tr key={order.id}>
                                         <td>{order.id}</td>
-                                        <td>{order.customer_name}</td>
-                                        <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                                        <td>{order.customer_name} {order.lastName}</td>
+                                        <td>{format(new Date(order.created_at), "MM-dd-yyyy")}</td>
                                         <td>Rs. {parseFloat(order.total_amount).toFixed(2)}</td>
                                     </tr>
                                 ))
@@ -137,9 +138,9 @@ const AdminDashboard = () => {
                                 recentCustomers.map((customer) => (
                                     <tr key={customer.id}>
                                         <td>{customer.id}</td>
-                                        <td>{customer.first_name}</td>
+                                        <td>{customer.first_name} {customer.last_name}</td>
                                         <td>{customer.email}</td>
-                                        <td>{new Date(customer.created_at).toLocaleDateString()}</td>
+                                        <td>{format(new Date(customer.created_at), "MM-dd-yyyy")}</td>
                                     </tr>
                                 ))
                             ) : (

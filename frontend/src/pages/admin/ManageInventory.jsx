@@ -65,24 +65,28 @@ const ManageInventory = () => {
     // Update product details
     const handleUpdateProduct = async (e) => {
         e.preventDefault();
-
         try {
             const { id, name, description, price, color, stock_quantity, image_url, type_id, count_id } = selectedProduct;
-
+    
+            // Validate required fields
+            if (!name || !description || !price || !color || stock_quantity === undefined || !type_id || !count_id) {
+                alert("All fields are required.");
+                return;
+            }
+    
             await axios.put(`http://localhost:5000/api/products/${id}`, {
                 name,
                 description,
-                price: Number(price),
+                price,
                 color,
-                stock_quantity: Number(stock_quantity),
+                stock_quantity,
                 image_url,
-                type_id: Number(type_id),
-                count_id: Number(count_id),
+                type_id,
+                count_id,
             });
-
             alert('Product updated successfully.');
-            setIsEditModalOpen(false);
-            fetchProducts();
+            setIsEditModalOpen(false); // Close the modal
+            fetchProducts(); // Refresh the list after updating
         } catch (err) {
             console.error('Error updating product:', err.response?.data || err.message);
             alert('Failed to update product. Please try again.');
@@ -133,8 +137,12 @@ const ManageInventory = () => {
                 count_id: '',
             }); // Reset form fields
         } catch (err) {
-            console.error('Error adding product:', err.response?.data || err.message);
-            alert('Failed to add product. Please try again.');
+            // Display the error message from the backend
+            if (err.response?.status === 400) {
+                alert(err.response.data.message); // Show the duplicate entry message
+            } else {
+                alert("Failed to add product. Please try again.");
+            }
         }
     };
 
@@ -185,7 +193,7 @@ const ManageInventory = () => {
                                     <td>{product.name}</td>
                                     <td>{product.type_name}</td>
                                     <td>{product.color}</td>
-                                    <td>{product.count_value}</td>
+                                    <td>{product.counts}</td>
                                     <td>{product.stock_quantity} kg</td>
                                     <td>
                                         {product.updated_at ? format(parseISO(product.updated_at), 'MM-dd-yyyy') : 'N/A'}
@@ -449,7 +457,6 @@ const ManageInventory = () => {
                                 <select
                                     value={newProduct.type_id}
                                     onChange={(e) => {
-                                        console.log("Selected type_id:", e.target.value);
                                         setNewProduct({
                                             ...newProduct,
                                             type_id: e.target.value,
@@ -470,7 +477,6 @@ const ManageInventory = () => {
                                 <select
                                     value={newProduct.count_id}
                                     onChange={(e) => {
-                                        console.log("Selected count_id:", e.target.value);
                                         setNewProduct({
                                             ...newProduct,
                                             count_id: e.target.value,

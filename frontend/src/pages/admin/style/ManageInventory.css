@@ -39,6 +39,7 @@
     font-weight: bold;
     color: var(--white);
     font-size: 18px;
+    border-bottom: 1px solid #ddd;
 }
 
 .inventory-table tr:hover {

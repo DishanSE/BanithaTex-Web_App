@@ -70,7 +70,7 @@ const ManageOrders = () => {
           <thead>
             <tr>
               <th>Order ID</th>
-              <th>First Name</th>
+              <th>Customer Name</th>
               <th>Items</th>
               <th>Quantity</th>
               <th>Placed On</th>
@@ -86,7 +86,7 @@ const ManageOrders = () => {
               orders.map((order) => (
                 <tr key={order.order_id}>
                   <td>{order.order_id}</td>
-                  <td>{order.first_name}</td>
+                  <td>{order.first_name} {order.last_name}</td>
                   <td>
                     {order.items.map((item, index) => (
                       <p key={index}>{item.product_name}</p>

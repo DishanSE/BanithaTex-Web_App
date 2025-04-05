@@ -17,7 +17,7 @@ const ProductDetail = () => {
 
     const [product, setProduct] = useState(null);
     const [colors, setColors] = useState([]);
-    const [counts, setCounts] = useState([]);
+    const [counts, setCounts] = useState([]); // All count values for the product
     const [allProducts, setAllProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -48,16 +48,24 @@ const ProductDetail = () => {
                 if (productResponse.data.count_value) {
                     setSelectedCount(productResponse.data.count_value);
                 } else {
-                    console.warn("No count available for this product.");
                     setSelectedCount("");
                 }
 
+                // Fetch all colors for the product
                 const colorsResponse = await axios.get(`http://localhost:5000/api/products/${id}/colors`);
                 setColors(colorsResponse.data);
 
-                const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts`);
+                // Set default color
+                if (colorsResponse.data.length > 0) {
+                    setSelectedColor(colorsResponse.data[0]);
+                }
+
+                // Fetch all count values for the product
+                const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts/${productResponse.data.color}`);
+                console.log("Counts Response:", countsResponse.data); // Debugging
                 setCounts(countsResponse.data);
 
+                // Fetch all products for similar products section
                 const allProductsResponse = await axios.get(`http://localhost:5000/api/products`);
                 setAllProducts(allProductsResponse.data);
 
@@ -70,15 +78,16 @@ const ProductDetail = () => {
         fetchData();
     }, [id]);
 
+
     if (loading) return <p>Loading product details...</p>;
     if (error) return <p>{error}</p>;
 
+    // Ensure unique product names in similar products
     const similarProducts = [...new Map(
         allProducts
             .filter((item) => item.name !== product.name) // Exclude the current product
-            .map((item) => [item.id, item]) // Use the product ID as the key
+            .map((item) => [item.name, item]) // Use the product name as the key
     ).values()];
-
 
     // Handle quantity change
     const handleQuantityChange = (e) => {
@@ -89,19 +98,37 @@ const ProductDetail = () => {
         }
     };
 
+    const handleColorChange = async (e) => {
+        const selectedColor = e.target.value;
+        setSelectedColor(selectedColor);
+
+        // Fetch counts for the selected color
+        try {
+            const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts/${selectedColor}`);
+            if (countsResponse.data.length === 0) {
+                console.warn("No counts available for the selected color.");
+                setCounts([]); // Reset counts to an empty array
+                setSelectedCount(""); // Reset selected count
+            } else {
+                setCounts(countsResponse.data);
+            }
+        } catch (error) {
+            console.error("Error fetching counts:", error);
+            alert("Failed to fetch counts. Please try again.");
+        }
+    };
+
     const handleAddToCart = async () => {
         if (!isLoggedIn) {
             alert("Please log in to add items to your cart.");
             return;
         }
-
         try {
             const selectedOptions = {
                 color: selectedColor,
-                count: selectedCount,
+                count: selectedCount, // This is now the ID of the count
                 quantity: quantity,
             };
-
             await addToCart(product, selectedOptions);
             setSuccessMessage(`${product.name} has been added to the cart!`);
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -116,7 +143,7 @@ const ProductDetail = () => {
             alert("Please log in to proceed with the purchase.");
             return;
         }
-    
+
         // Prepare the selected product data
         const selectedProduct = {
             cart_item_id: Date.now(), // Temporary ID for the item
@@ -128,7 +155,7 @@ const ProductDetail = () => {
             color: selectedColor,
             selected_count_id: selectedCount,
         };
-    
+
         // Navigate to the checkout page with the selected product
         navigate('/checkout', { state: { selectedProducts: [selectedProduct] } });
     };
@@ -150,8 +177,7 @@ const ProductDetail = () => {
                         {/* Color Dropdown */}
                         <div className="form-group">
                             <label htmlFor="color">Choose Color:</label>
-                            <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
-                                <option value="">Select Color</option>
+                            <select id="color" value={selectedColor} onChange={handleColorChange}>
                                 {colors.map((color, index) => (
                                     <option key={index} value={color}>
                                         {color}
@@ -163,13 +189,17 @@ const ProductDetail = () => {
                         {/* Count Dropdown */}
                         <div className="form-group">
                             <label htmlFor="count">Choose Count Value:</label>
-                            <select value={selectedCount} onChange={(e) => setSelectedCount(e.target.value)}>
+                            <select id="count" value={selectedCount} onChange={(e) => setSelectedCount(e.target.value)}>
                                 <option value="">Select Count</option>
-                                {counts.map((count) => (
-                                    <option key={count.id} value={count.id}>
-                                        {count.count_value}
-                                    </option>
-                                ))}
+                                {counts.length > 0 ? (
+                                    counts.map((count) => (
+                                        <option key={count.id} value={count.id}>
+                                            {count.count_value}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>No counts available</option>
+                                )}
                             </select>
                         </div>
 

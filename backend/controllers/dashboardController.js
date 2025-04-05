@@ -48,7 +48,7 @@ exports.getTotalSales = async (req, res) => {
 exports.getRecentOrders = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT o.id, o.created_at, u.first_name AS customer_name, o.total_amount
+            SELECT o.id, o.created_at, u.first_name AS customer_name, u.last_name AS lastName, o.total_amount
             FROM orders o
             JOIN users u ON o.user_id = u.id
             ORDER BY o.created_at DESC
@@ -65,7 +65,7 @@ exports.getRecentOrders = async (req, res) => {
 exports.getRecentCustomers = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT id, first_name, email, created_at
+            SELECT id, first_name, last_name, email, created_at
             FROM users
             WHERE role = 'customer'
             ORDER BY created_at DESC

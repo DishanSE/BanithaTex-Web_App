@@ -13,6 +13,7 @@ router.get('/yarn-counts', productController.getYarnCounts);
 router.get('/:id/colors', productController.getProductColors);
 router.get('/:id/counts', productController.getProductCounts);
 router.get('/:id', productController.getProductById);
+router.get('/:id/counts/:color', productController.getAvailableCounts);
 
 // Admin-only routes
 router.post('/', productController.addProduct);

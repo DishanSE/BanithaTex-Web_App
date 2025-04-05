@@ -62,6 +62,26 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    const handleAddToCart = async () => {
+        if (!isLoggedIn) {
+            alert("Please log in to add items to your cart.");
+            return;
+        }
+        try {
+            const selectedOptions = {
+                color: selectedColor,
+                count: selectedCount, // This is now the ID of the count
+                quantity: quantity,
+            };
+            await addToCart(product, selectedOptions);
+            setSuccessMessage(`${product.name} has been added to the cart!`);
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (err) {
+            console.error("Error adding item to cart:", err);
+            alert("Failed to add item to cart. Please try again.");
+        }
+    };
+
     // Remove item from cart
     const removeFromCart = async (itemId) => {
         try {
@@ -90,7 +110,7 @@ export const CartProvider = ({ children }) => {
     }
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, removeSelectedItems }}>
+        <CartContext.Provider value={{ cart, addToCart, handleAddToCart, removeFromCart, clearCart, removeSelectedItems }}>
             {children}
         </CartContext.Provider>
     );

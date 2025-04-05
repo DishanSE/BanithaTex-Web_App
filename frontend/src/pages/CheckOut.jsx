@@ -7,12 +7,13 @@ import Summary from '../components/Summary'
 import '../styles/Checkout.css';
 
 const Checkout = () => {
-    const { cart, removeSelectedItems } = useContext(CartContext);
+    const { cart, removeSelectedItems, clearCart } = useContext(CartContext);
     const [selectedItems, setSelectedItems] = useState([]);
     const { isLoggedIn, user } = useContext(AuthContext);
     const location = useLocation();
     const navigate = useNavigate();
     const selectedProducts = location.state?.selectedProducts || [];
+    
 
     // State for shipping address, payment method, and modal visibility
     const [shippingAddress, setShippingAddress] = React.useState('');
@@ -30,7 +31,6 @@ const Checkout = () => {
             alert("Please log in to place an order.");
             return;
         }
-
         try {
             const orderData = {
                 user_id: user.id,
@@ -38,21 +38,17 @@ const Checkout = () => {
                 payment_method: paymentMethod,
                 cart: selectedProducts.map((item) => ({
                     product_id: item.product_id,
+                    product_name: item.product_name, // Include product_name
                     quantity: item.quantity,
-                    selected_count_id: item.selected_count_id,
+                    selected_count_id: Number(item.selected_count_id), // Ensure count ID is a number
                     color: item.color,
                     price: item.price,
                 })),
             };
-
+            console.log("Order Data:", orderData); // Debugging
             const response = await axios.post('http://localhost:5000/api/orders', orderData);
-
-            // Extract cart item IDs from selected products
-            const selectedCartItemIds = selectedProducts.map((item) => item.cart_item_id);
-            removeSelectedItems(selectedCartItemIds); // Remove only selected items
-
-            setSelectedItems([]);
-
+            console.log("Order Response:", response.data);
+            clearCart(); // Clear cart after successful order placement
             alert("Order placed successfully!");
             navigate('/customer/orders'); // Redirect to the orders page
         } catch (err) {
@@ -214,7 +210,7 @@ const Checkout = () => {
                             </div>
 
                             {/* Save and Place Order Button */}
-                            <button className="save btn" type="button" onClick={handleSaveCardDetails}>
+                            <button className="save btn" type="button" onClick={handlePlaceOrder}>
                                 Save & Place Order
                             </button>
                         </form>
