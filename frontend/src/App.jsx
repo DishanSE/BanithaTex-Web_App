@@ -16,7 +16,6 @@ import ManageOrders from './pages/admin/ManageOrders.jsx'
 import ManageUsers from './pages/admin/ManageUsers.jsx'
 import Reports from './pages/admin/Reports.jsx'
 import AdminLogout from './pages/admin/ALogout.jsx'
-import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
 import CustomerProfile from './pages/customer/MyProfile.jsx';
 import CustomerOrders from './pages/customer/MyOrders.jsx';
 import CustomerLogout from './pages/customer/CLogout.jsx'
@@ -90,14 +89,6 @@ const App = () => {
                             }
                         />
 
-                        <Route 
-                            path='/customer/dashboard'
-                            element={
-                                <ProtectedRoute allowedRoles={['customer']}>
-                                    <CustomerDashboard />
-                                </ProtectedRoute>
-                            }
-                        />
                         <Route 
                             path='/customer/profile'
                             element={

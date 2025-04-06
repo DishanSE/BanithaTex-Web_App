@@ -89,23 +89,26 @@ exports.getUserOrders = async (req, res) => {
             SELECT 
                 o.id AS order_id,
                 o.created_at AS placed_on,
-                p.name AS product_name, -- Fetch product name from products table
+                p.name AS product_name,
                 oi.quantity,
                 oi.price,
                 o.status
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
-            JOIN products p ON oi.product_id = p.id -- Join with products table
+            JOIN products p ON oi.product_id = p.id
             WHERE o.user_id = ?
-            ORDER BY o.created_at DESC
+            ORDER BY placed_on DESC
         `, [id]);
 
         if (!rows.length) {
             return res.status(404).json({ error: 'No orders found' });
         }
 
+        // Track order IDs in the order they appear
+        const orderIds = [];
+        
         // Group items by order ID
-        const orders = rows.reduce((acc, row) => {
+        const ordersMap = rows.reduce((acc, row) => {
             if (!acc[row.order_id]) {
                 acc[row.order_id] = {
                     order_id: row.order_id,
@@ -114,6 +117,8 @@ exports.getUserOrders = async (req, res) => {
                     total: 0,
                     status: row.status,
                 };
+                // Add to orderIds array only once per order_id
+                orderIds.push(row.order_id);
             }
             acc[row.order_id].items.push({
                 product_name: row.product_name,
@@ -124,7 +129,10 @@ exports.getUserOrders = async (req, res) => {
             return acc;
         }, {});
 
-        res.json(Object.values(orders));
+        // Construct result array in the correct order
+        const orders = orderIds.map(id => ordersMap[id]);
+
+        res.json(orders);
     } catch (err) {
         console.error('Error fetching user orders:', err);
         res.status(500).json({ error: 'Failed to fetch user orders' });

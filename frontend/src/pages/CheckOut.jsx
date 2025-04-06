@@ -46,7 +46,7 @@ const Checkout = () => {
                 })),
             };
             console.log("Order Data:", orderData); // Debugging
-            const response = await axios.post('http://localhost:5000/api/orders', orderData);
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, orderData);
             console.log("Order Response:", response.data);
             clearCart(); // Clear cart after successful order placement
             alert("Order placed successfully!");
@@ -132,7 +132,7 @@ const Checkout = () => {
                                 {selectedProducts.map((item) => (
                                     <div key={item.cart_item_id} className="yarn-item">
                                         <img
-                                            src={`http://localhost:5000${item.product_image}`}
+                                            src={`${import.meta.env.VITE_BACKEND_URL}${item.product_image}`}
                                             alt={item.product_name}
                                         />
                                         <h3 className="products-name">{item.product_name}</h3>

@@ -35,7 +35,7 @@ const MyProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/users/${user.id}`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/${user.id}`);
             const userData = response.data;
             setProfile(userData);
             setFormData({
@@ -64,7 +64,7 @@ const MyProfile = () => {
     // Save updated profile data
     const handleSaveProfile = async () => {
         try {
-            await axios.put(`http://localhost:5000/api/users/${user.id}`, formData);
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/users/${user.id}`, formData);
             alert('Profile updated successfully!');
             setIsEditMode(false); // Exit edit mode after saving
             fetchProfile();
@@ -107,7 +107,7 @@ const MyProfile = () => {
         }
 
         try {
-            await axios.post(`http://localhost:5000/api/users/${user.id}/change-password`, {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/${user.id}/change-password`, {
                 currentPassword,
                 newPassword,
             });

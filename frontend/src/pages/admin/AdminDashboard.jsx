@@ -20,27 +20,27 @@ const AdminDashboard = () => {
         const fetchData = async () => {
             try {
                 // Fetch total customers
-                const customersResponse = await axios.get('http://localhost:5000/api/dashboard/total-customers');
+                const customersResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/total-customers`);
                 const totalCustomers = customersResponse.data.total_customers;
 
                 // Fetch total products
-                const productsResponse = await axios.get('http://localhost:5000/api/dashboard/total-products');
+                const productsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/total-products`);
                 const totalProducts = productsResponse.data.total_products;
 
                 // Fetch total orders
-                const ordersResponse = await axios.get('http://localhost:5000/api/dashboard/total-orders');
+                const ordersResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/total-orders`);
                 const totalOrders = ordersResponse.data.total_orders;
 
                 // Fetch total sales
-                const salesResponse = await axios.get('http://localhost:5000/api/dashboard/total-sales');
+                const salesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/total-sales`);
                 const totalSales = salesResponse.data.total_sales;
 
                 // Fetch recent orders
-                const recentOrdersResponse = await axios.get('http://localhost:5000/api/dashboard/recent-orders');
+                const recentOrdersResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/recent-orders`);
                 const recentOrders = recentOrdersResponse.data;
 
                 // Fetch recent customers
-                const recentCustomersResponse = await axios.get('http://localhost:5000/api/dashboard/recent-customers');
+                const recentCustomersResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard/recent-customers`);
                 const recentCustomers = recentCustomersResponse.data;
 
                 // Update state
@@ -86,7 +86,10 @@ const AdminDashboard = () => {
                     <div className="card">
                         <FaDollarSign className="card-icon" />
                         <h3>Total Sales</h3>
-                        <p>Rs. {parseFloat(stats.totalSales).toFixed(2)}</p>
+                        <p>Rs. {parseFloat(stats.totalSales).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}</p>
                     </div>
                 </div>
 
@@ -109,7 +112,10 @@ const AdminDashboard = () => {
                                         <td>{order.id}</td>
                                         <td>{order.customer_name} {order.lastName}</td>
                                         <td>{format(new Date(order.created_at), "MM-dd-yyyy")}</td>
-                                        <td>Rs. {parseFloat(order.total_amount).toFixed(2)}</td>
+                                        <td>Rs. {parseFloat(order.total_amount).toLocaleString('en-us', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}</td>
                                     </tr>
                                 ))
                             ) : (

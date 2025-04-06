@@ -33,7 +33,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const productResponse = await axios.get(`http://localhost:5000/api/products/${id}`);
+                const productResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`);
                 setProduct(productResponse.data);
                 setCalculatedPrice(productResponse.data.price);
 
@@ -52,7 +52,7 @@ const ProductDetail = () => {
                 }
 
                 // Fetch all colors for the product
-                const colorsResponse = await axios.get(`http://localhost:5000/api/products/${id}/colors`);
+                const colorsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/colors`);
                 setColors(colorsResponse.data);
 
                 // Set default color
@@ -61,12 +61,12 @@ const ProductDetail = () => {
                 }
 
                 // Fetch all count values for the product
-                const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts/${productResponse.data.color}`);
+                const countsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/counts/${productResponse.data.color}`);
                 console.log("Counts Response:", countsResponse.data); // Debugging
                 setCounts(countsResponse.data);
 
                 // Fetch all products for similar products section
-                const allProductsResponse = await axios.get(`http://localhost:5000/api/products`);
+                const allProductsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
                 setAllProducts(allProductsResponse.data);
 
                 setLoading(false);
@@ -104,7 +104,7 @@ const ProductDetail = () => {
 
         // Fetch counts for the selected color
         try {
-            const countsResponse = await axios.get(`http://localhost:5000/api/products/${id}/counts/${selectedColor}`);
+            const countsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/counts/${selectedColor}`);
             if (countsResponse.data.length === 0) {
                 console.warn("No counts available for the selected color.");
                 setCounts([]); // Reset counts to an empty array
@@ -167,7 +167,7 @@ const ProductDetail = () => {
             <div className="product-detail">
                 <div className="product-container">
                     <div className="product-image">
-                        <img src={`http://localhost:5000${product?.image_url}`} alt={product.name} />
+                        <img src={`${import.meta.env.VITE_BACKEND_URL}${product?.image_url}`} alt={product.name} />
                     </div>
 
                     <div className="product-info">
@@ -244,7 +244,7 @@ const ProductDetail = () => {
                         {similarProducts.map((item) => (
                             <SwiperSlide key={item.id}>
                                 <div className="product-item">
-                                    <img src={`http://localhost:5000${item.image_url}`} alt={item.name} />
+                                    <img src={`${import.meta.env.VITE_BACKEND_URL}${item.image_url}`} alt={item.name} />
                                     <h3>{item.name}</h3>
                                     <button onClick={() => navigate(`/product/${item.id}`)} className="buy-now">Buy Now</button>
                                 </div>

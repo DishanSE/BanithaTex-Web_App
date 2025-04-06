@@ -13,7 +13,7 @@ const Product = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/products');
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
                 setProducts(response.data);
                 setLoading(false);
             } catch (err) {
@@ -59,7 +59,7 @@ const Product = () => {
                             {uniqueProducts.map((product) => (
                                 <div key={product.id} className="product-item">
                                     {/* Use the image URL from the database */}
-                                    <img src={`http://localhost:5000${product.image_url}`} alt={product.name} />
+                                    <img src={`${import.meta.env.VITE_BACKEND_URL}${product.image_url}`} alt={product.name} />
                                     <h3>{product.name}</h3>
                                     <button onClick={() => navigate(`/product/${product.id}`)} className="buy-now">Buy Now</button>
                                 </div>

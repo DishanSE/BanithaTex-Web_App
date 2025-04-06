@@ -16,7 +16,7 @@ const ManageOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/allorders');
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/allorders`);
       setOrders(response.data);
     } catch (err) {
       console.error('Error fetching orders:', err);
@@ -26,7 +26,7 @@ const ManageOrders = () => {
   // Update order status
   const handleUpdateStatus = async (orderId, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status });
+      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${orderId}/status`, { status });
       alert('Order status updated successfully.');
       fetchOrders(); // Refresh the list after updating
     } catch (err) {
@@ -40,7 +40,7 @@ const ManageOrders = () => {
     if (!window.confirm('Are you sure you want to delete this order?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/orders/${orderId}`);
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${orderId}`);
       alert('Order deleted successfully.');
       fetchOrders(); // Refresh the list after deletion
     } catch (err) {
@@ -158,7 +158,10 @@ const ManageOrders = () => {
                           <td>Rs. {Number(item.price).toFixed(2)}</td>
                           {index === 0 && (
                             <td rowSpan={order.items.length}>
-                              Rs. {order.total_amount}
+                              Rs. {parseFloat(order.total_amount).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}
                             </td>
                           )}
                           {index === 0 && (

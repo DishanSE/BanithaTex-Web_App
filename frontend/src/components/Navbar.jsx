@@ -33,7 +33,7 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     if (userRole === 'customer') {
-      navigate('/customer/dashboard');
+      navigate('/customer/profile');
     } else if (userRole === 'admin') {
       navigate('/admin/dashboard');
     } else {
@@ -65,9 +65,9 @@ const Navbar = () => {
         <img src={logo} alt="Banitha Tex Logo" className='logo' />
         <ul>
             <li><Link to='/' onClick={() => setActiveLink('home')} className={`Nav-link ${activeLink === 'home' ? 'active' : ''}`}>Home</Link></li>
-            <li><Link to='/about' onClick={() => setActiveLink('about')} className={`Nav-link {activeLink === 'about' ? 'active' : ''}`}>About Us</Link></li>
-            <li><Link to='/product' onClick={() => setActiveLink('product')} className={`Nav-link {activeLink === 'product' ? 'active' : ''}`}>Product</Link></li>
-            <li><Link to='/contact' onClick={() => setActiveLink('contact')} className={`Nav-link {activeLink === 'contact' ? 'active' : ''}`}>Contact Us</Link></li>
+            <li><Link to='/about' onClick={() => setActiveLink('about')} className={`Nav-link ${activeLink === 'about' ? 'active' : ''}`}>About Us</Link></li>
+            <li><Link to='/product' onClick={() => setActiveLink('product')} className={`Nav-link ${activeLink === 'product' ? 'active' : ''}`}>Product</Link></li>
+            <li><Link to='/contact' onClick={() => setActiveLink('contact')} className={`Nav-link ${activeLink === 'contact' ? 'active' : ''}`}>Contact Us</Link></li>
             {isLoggedIn ? (
               <li className='profile-container'>
                 <button className="profile-btn" onClick={toggleDropdown}><FaRegUser /></button>

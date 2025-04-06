@@ -32,7 +32,7 @@ const ManageInventory = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/products');
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
             setProducts(response.data);
         } catch (err) {
             console.error('Error fetching products:', err);
@@ -41,7 +41,7 @@ const ManageInventory = () => {
 
     const fetchYarnTypes = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/products/yarn-types');
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/yarn-types`);
             setYarnTypes(response.data);
         } catch (err) {
             console.error('Error fetching yarn types:', err);
@@ -50,7 +50,7 @@ const ManageInventory = () => {
 
     const fetchYarnCounts = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/products/yarn-counts');
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/yarn-counts`);
             setYarnCounts(response.data);
         } catch (err) {
             console.error('Error fetching yarn counts:', err);
@@ -74,7 +74,7 @@ const ManageInventory = () => {
                 return;
             }
     
-            await axios.put(`http://localhost:5000/api/products/${id}`, {
+            await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`, {
                 name,
                 description,
                 price,
@@ -112,7 +112,7 @@ const ManageInventory = () => {
             // Prepare the product data with the Base64-encoded image
             const { name, description, price, color, stock_quantity, type_id, count_id } = newProduct;
 
-            await axios.post('http://localhost:5000/api/products', {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/products`, {
                 name,
                 description,
                 price,
@@ -151,7 +151,7 @@ const ManageInventory = () => {
         if (!window.confirm('Are you sure you want to delete this product?')) return;
 
         try {
-            await axios.delete(`http://localhost:5000/api/products/${productId}`);
+            await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}`);
             alert('Product deleted successfully.');
             fetchProducts();
         } catch (err) {

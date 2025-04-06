@@ -48,7 +48,7 @@ const Cart = () => {
                                         className="cart-checkbox"
                                     />
                                     <img
-                                        src={`http://localhost:5000${item.product_image}`}
+                                        src={`${import.meta.env.VITE_BACKEND_URL}${item.product_image}`}
                                         alt={item.product_name}
                                         className="products-image"
                                     />

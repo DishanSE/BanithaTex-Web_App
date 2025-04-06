@@ -36,25 +36,25 @@ const Reports = () => {
 
       // Fetch monthly sales trends
       const salesResponse = await axios.get(
-        `http://localhost:5000/api/reports/monthly-sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/monthly-sales?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
       );
       setSalesTrends(salesResponse.data);
 
       // Fetch top products
       const productsResponse = await axios.get(
-        `http://localhost:5000/api/reports/top-products?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/top-products?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
       );
       setTopProducts(productsResponse.data);
 
       // Fetch new customers per month
       const customersResponse = await axios.get(
-        `http://localhost:5000/api/reports/new-customers?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/new-customers?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
       );
       setNewCustomers(customersResponse.data);
 
       // Fetch revenue by yarn type
       const revenueResponse = await axios.get(
-        `http://localhost:5000/api/reports/revenue-by-yarn-type?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/revenue-by-yarn-type?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
       );
       setRevenueByYarnType(revenueResponse.data);
     } catch (err) {

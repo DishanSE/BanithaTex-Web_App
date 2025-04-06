@@ -18,7 +18,7 @@ const MyOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/users/${user.id}/orders`);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/${user.id}/orders`);
             setOrders(response.data);
         } catch (err) {
             console.error('Error fetching orders:', err);
@@ -56,7 +56,10 @@ const MyOrders = () => {
                                         </td>
                                         <td>{order.items[0].product_name}</td>
                                         <td>{order.items[0].quantity}</td>
-                                        <td rowSpan={order.items.length}>Rs. {order.total.toFixed(2)}</td>
+                                        <td rowSpan={order.items.length}>Rs. {parseFloat(order.total).toLocaleString('en-us', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}</td>
                                         <td rowSpan={order.items.length}>{order.status}</td>
                                     </tr>
                                     {order.items.slice(1).map((item, index) => (
