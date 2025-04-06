@@ -251,9 +251,9 @@ exports.updateProduct = async (req, res) => {
         }
 
         // Notify admin if stock is below 500 kg
-        if (stock_quantity < 300) {
-            console.log(`ALERT: Stock for product ID ${id} is below 500 kg. Current stock: ${stock_quantity} kg`);
-            await notifyAdminLowStock(id, stock_quantity); // Optional: Send email or log notification
+        if (stock_quantity <= 300) {
+            console.log(`ALERT: Stock for product ID ${id} is below 300 kg. Current stock: ${stock_quantity} kg`);
+            await notifyAdminLowStock(id, name, type_id, color,count_id, stock_quantity); // Optional: Send email or log notification
         }
 
         // Return success response
@@ -304,13 +304,24 @@ exports.getYarnCounts = async (req, res) => {
 };
 
 // Function to notify the admin via email
-const notifyAdminLowStock = async (productId, stockQuantity) => {
+const notifyAdminLowStock = async (productId, productName, typeID, productColor, countID, stockQuantity) => {
     try {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'dishanraj13@gmail.com',
             subject: 'Low Stock Alert',
-            text: `Product ID ${productId} has low stock: ${stockQuantity} kg`,
+            // text: `Product ID ${productId} (Name: ${productName} | Product Type: ${typeID} | Color: ${productColor} | Count ID: ${countID}) has low stock: ${stockQuantity} kg`,
+            html:`
+                <h1>LOW STOCK ALERT! FROM BANITHA TEX</h1>
+                <p>Product Deatils for ID: ${productId}</p>
+                <li>
+                    <strong>Name: ${productName}</strong> -
+                    Type ID: ${typeID},
+                    Color: ${productColor},
+                    Count ID:${countID}
+                <li>
+                <p>has low stock: ${stockQuantity} kg</p>
+            `,
         };
 
         await transporter.sendMail(mailOptions);

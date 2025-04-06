@@ -199,16 +199,62 @@ exports.getAllOrders = async (req, res) => {
 
 
 // Update Order Status
+// exports.updateOrderStatus = async (req, res) => {
+//     const { id } = req.params;
+//     const { status } = req.body;
+
+//     try {
+//         await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+//         res.json({ message: 'Order status updated successfully' });
+//     } catch (err) {
+//         console.error('Error updating order status:', err);
+//         res.status(500).json({ error: 'Failed to update order status' });
+//     }
+// };
+
+// Update Order Status
 exports.updateOrderStatus = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+    const { id } = req.params; // Extract order ID from URL
+    const { status } = req.body; // Extract new status from request body
 
     try {
-        await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
-        res.json({ message: 'Order status updated successfully' });
-    } catch (err) {
-        console.error('Error updating order status:', err);
-        res.status(500).json({ error: 'Failed to update order status' });
+        // Validate required fields
+        if (!id || !status) {
+            return res.status(400).json({ message: "Order ID and status are required." });
+        }
+
+        // Update the order status in the database
+        const [result] = await db.query(
+            "UPDATE orders SET status = ? WHERE id = ?",
+            [status, id]
+        );
+
+        // Check if the order was found and updated
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Order not found." });
+        }
+
+        // Fetch user email for notification
+        const [orderRows] = await db.query(
+            "SELECT user_id FROM orders WHERE id = ?",
+            [id]
+        );
+        const userId = orderRows[0]?.user_id;
+
+        if (userId) {
+            const [userRows] = await db.query("SELECT email FROM users WHERE id = ?", [userId]);
+            const userEmail = userRows[0]?.email;
+
+            // Notify the user via email
+            if (userEmail) {
+                notifyUserOrderStatusUpdate(userEmail, id, status);
+            }
+        }
+
+        res.status(200).json({ message: "Order status updated successfully." });
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        res.status(500).json({ message: "Server error", details: error.message });
     }
 };
 
@@ -225,9 +271,7 @@ exports.deleteOrder = async (req, res) => {
     }
 };
 
-
-
-
+// Function to notify the user about order placement
 const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
     try {
         const mailOptions = {
@@ -259,64 +303,23 @@ const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
 };
 
 
-// const notifyUserProductStatusUpdate = async (userEmail, orderId, status) => {
-//     try {
-//         const mailOptions = {
-//             from: process.env.EMAIL_USER,
-//             to: userEmail,
-//             subject: 'Order Status Update',
-//             html: `
-//                 <h1>Your Order Status Has Been Updated</h1>
-//                 <p>Your order with ID <strong>${orderId}</strong> has been updated to <strong>${status}</strong>.</p>
-//                 <p>Thank you for shopping with us!</p>
-//             `,
-//         };
-//         await transporter.sendMail(mailOptions);
-//         console.log(`Order status update email sent to ${userEmail}`);
-//     } catch (error) {
-//         console.error('Error sending order status update email:', error);
-//     }
-// };
+// Function to notify the user about order status updates
+const notifyUserOrderStatusUpdate = async (userEmail, orderId, status) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: userEmail,
+            subject: 'Order Status Update',
+            html: `
+                <h1>Your Order Status Has Been Updated</h1>
+                <p>Your order with ID <strong>${orderId}</strong> has been updated to <strong>${status}</strong>.</p>
+                <p>Thank you for shopping with us!</p>
+            `,
+        };
+        await transporter.sendMail(mailOptions);
+        console.log(`Order status update email sent to ${userEmail}`);
+    } catch (error) {
+        console.error('Error sending order status update email:', error);
+    }
+};
 
-// exports.updateOrderStatus = async (req, res) => {
-//     try {
-//         const { orderId, status } = req.body;
-
-//         // Validate required fields
-//         if (!orderId || !status) {
-//             return res.status(400).json({ message: "Order ID and status are required." });
-//         }
-
-//         // Update the order status in the database
-//         const [result] = await db.query(
-//             "UPDATE orders SET status = ? WHERE id = ?",
-//             [status, orderId]
-//         );
-
-//         if (result.affectedRows === 0) {
-//             return res.status(404).json({ message: "Order not found." });
-//         }
-
-//         // Fetch user email for notification
-//         const [orderRows] = await db.query(
-//             "SELECT user_id FROM orders WHERE id = ?",
-//             [orderId]
-//         );
-//         const userId = orderRows[0]?.user_id;
-
-//         if (userId) {
-//             const [userRows] = await db.query("SELECT email FROM users WHERE id = ?", [userId]);
-//             const userEmail = userRows[0]?.email;
-
-//             // Notify the user via email
-//             if (userEmail) {
-//                 notifyUserProductStatusUpdate(userEmail, orderId, status);
-//             }
-//         }
-
-//         res.status(200).json({ message: "Order status updated successfully." });
-//     } catch (error) {
-//         console.error("Error updating order status:", error);
-//         res.status(500).json({ message: "Server error", details: error.message });
-//     }
-// };
