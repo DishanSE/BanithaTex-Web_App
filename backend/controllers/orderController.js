@@ -295,7 +295,7 @@ const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
                             <strong>${item.product_name}</strong> - 
                             Quantity: ${item.quantity}, 
                             Color: ${item.color}, 
-                            Price: Rs. ${item.price.toFixed(2)}
+                            Price: Rs. ${Number(item.price).toFixed(2)}
                         </li>
                     `).join('')}
                 </ul>

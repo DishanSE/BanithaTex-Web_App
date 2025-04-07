@@ -36,14 +36,6 @@ export const CartProvider = ({ children }) => {
 
         try {
             const calculatedPrice = product.price * selectedOptions.quantity;
-            console.log("Adding item to cart:", {
-                user_id: user.id,
-                product_id: product.id,
-                quantity: selectedOptions.quantity,
-                selected_count_id: selectedOptions.count,
-                color: selectedOptions.color,
-                price: calculatedPrice,
-            });
 
             const response = await apiClient.post('/cart', {
                 user_id: user.id,
@@ -54,7 +46,6 @@ export const CartProvider = ({ children }) => {
                 price: calculatedPrice,
             });
 
-            console.log("API Response:", response.data);
             fetchUserCart(); // Refresh cart after adding an item
         } catch (err) {
             console.error("Error adding item to cart:", err.response?.data || err.message);

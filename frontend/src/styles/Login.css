@@ -51,9 +51,19 @@ input:focus {
 
 .signup-link {
     grid-column: span 2;
-    margin-top: 1rem;
+    margin-top: 10px;
     text-align: center;
-    color: #6c757d;
+    color: #99a9b6;
+}
+
+.forgot-password {
+    color: var(--white);
+    text-align: right;
+    cursor: pointer;
+}
+
+.forgot-password:hover {
+    color: var(--btn_hover);
 }
 
 .signup-link span {

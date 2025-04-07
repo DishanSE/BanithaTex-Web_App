@@ -62,7 +62,6 @@ const ProductDetail = () => {
 
                 // Fetch all count values for the product
                 const countsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/counts/${productResponse.data.color}`);
-                console.log("Counts Response:", countsResponse.data); // Debugging
                 setCounts(countsResponse.data);
 
                 // Fetch all products for similar products section

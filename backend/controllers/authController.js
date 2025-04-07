@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const transporter = require('../config/nodemailer');
+const crypto = require('crypto');
 require('../app');
 require('dotenv').config();
 
@@ -110,5 +112,96 @@ exports.getUser = async (req, res) => {
     } catch (error) {
         console.error('Error fetching user details:', error);
         res.status(500).json({ message: 'Failed to fetch user details' });
+    }
+};
+
+// Forgot Password with JWT
+exports.forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Check if the user exists
+        const [rows] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const userId = rows[0].id;
+
+        // Generate a JWT token that expires in 1 hour
+        const token = jwt.sign(
+            { id: userId },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // Save the token in the database
+        const expiresAt = new Date(Date.now() + 3600000); // Token expires in 1 hour
+        await db.query(
+            'UPDATE users SET reset_password_token = ?, reset_password_expires = ? WHERE id = ?',
+            [token, expiresAt, userId]
+        );
+
+        // Send the password reset email
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request',
+            html: `
+                <p>You are receiving this email because you (or someone else) requested a password reset.</p>
+                <p>Please click the following link to reset your password:</p>
+                <a href="${resetLink}">${resetLink}</a>
+                <p>If you did not request this, please ignore this email.</p>
+            `,
+        };
+        await transporter.sendMail(mailOptions);
+
+        res.json({ message: 'A password reset link has been sent to your email.' });
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Reset password
+exports.resetPassword = async (req, res) => {
+    const { token, password } = req.body;
+
+    try {
+        // Verify the token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (jwtError) {
+            return res.status(400).json({ message: "Invalid or expired token." });
+        }
+
+        // Fetch user details from the database
+        const [rows] = await db.query(
+            `SELECT id FROM users WHERE id = ? AND reset_password_token = ? AND reset_password_expires > NOW()`,
+            [decoded.id, token]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).json({ message: "Invalid or expired token." });
+        }
+
+        const userId = rows[0].id;
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update the user's password_hash and clear the reset token
+        await db.query(
+            `UPDATE users 
+             SET password_hash = ?, reset_password_token = NULL, reset_password_expires = NULL 
+             WHERE id = ?`,
+            [hashedPassword, userId]
+        );
+
+        res.json({ message: "Your password has been reset successfully." });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", details: error.message });
     }
 };

@@ -45,12 +45,11 @@ const Checkout = () => {
                     price: item.price,
                 })),
             };
-            console.log("Order Data:", orderData); // Debugging
+
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, orderData);
-            console.log("Order Response:", response.data);
             clearCart(); // Clear cart after successful order placement
             alert("Order placed successfully!");
-            navigate('/customer/orders'); // Redirect to the orders page
+            navigate('/customer/orders');
         } catch (err) {
             console.error("Error placing order:", err.response?.data || err.message);
             alert("Failed to place order. Please try again.");

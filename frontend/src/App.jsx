@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Signup from './components/Signup.jsx';
 import Login from './components/Login.jsx';
+import ForgotPassword from './components/ForgotPassword.jsx';
+import ResetPassword from './components/ResetPassword.jsx';
 import Home from './pages/Home.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import Product from './pages/Product.jsx';
@@ -40,6 +42,8 @@ const App = () => {
                         <Route path='/contact' element={<ContactUs/>} />
                         <Route path='/cart' element={<Cart />} />
                         <Route path='/checkout' element={<Checkout />}/>
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
                         <Route
                             path="/admin/dashboard"
                             element={
