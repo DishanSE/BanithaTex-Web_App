@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { MdOutlineShoppingCart, MdLogout } from "react-icons/md";
 import { FaRegUser } from "react-icons/fa";
 import { AuthContext } from '../context/AuthContext.jsx'
@@ -13,6 +13,20 @@ const Navbar = () => {
   const userRole = user?.role;
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // Add this to get current location
+  
+  useEffect(() => {
+    // Set active link based on current path
+    const path = location.pathname;
+    if (path === '/') setActiveLink('home');
+    else if (path === '/about') setActiveLink('about');
+    else if (path === '/product') setActiveLink('product');
+    else if (path === '/contact') setActiveLink('contact');
+    else if (path === '/login') setActiveLink('login');
+    else if (path === '/cart') setActiveLink('cart');
+    else if (path.includes('/customer/profile')) setActiveLink('profile');
+    else if (path.includes('/admin/dashboard')) setActiveLink('profile');
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,8 +48,10 @@ const Navbar = () => {
   const handleProfileClick = () => {
     if (userRole === 'customer') {
       navigate('/customer/profile');
+      setActiveLink('profile');
     } else if (userRole === 'admin') {
       navigate('/admin/dashboard');
+      setActiveLink('profile');
     } else {
       navigate('/');
     }
@@ -46,6 +62,7 @@ const Navbar = () => {
     await logout();
     setShowDropdown(false);
     navigate('/');
+    setActiveLink('home');
   };
 
   useEffect(() => {
@@ -70,7 +87,12 @@ const Navbar = () => {
             <li><Link to='/contact' onClick={() => setActiveLink('contact')} className={`Nav-link ${activeLink === 'contact' ? 'active' : ''}`}>Contact Us</Link></li>
             {isLoggedIn ? (
               <li className='profile-container'>
-                <button className="profile-btn" onClick={toggleDropdown}><FaRegUser /></button>
+                <button 
+                  className={`profile-btn ${activeLink === 'profile' ? 'active-profile' : ''}`} 
+                  onClick={toggleDropdown}
+                >
+                  <FaRegUser />
+                </button>
                 {showDropdown && (
                   <div className="dropdown-menu">
                     <button className="dropdown-item" onClick={handleProfileClick}>
@@ -82,10 +104,26 @@ const Navbar = () => {
               </li>
             ) : (
               <li>
-                <Link to='/login'><button className="btn">Login</button></Link>
+                <Link to='/login'>
+                  <button 
+                    className={`btn ${activeLink === 'login' ? 'active-btn' : ''}`}
+                    onClick={() => setActiveLink('login')}
+                  >
+                    Login
+                  </button>
+                </Link>
               </li>
             )}
-            <li><Link to='/cart'><button className='cart-btn'> <MdOutlineShoppingCart /> </button></Link></li>
+            <li>
+              <Link to='/cart'>
+                <button 
+                  className={`cart-btn ${activeLink === 'cart' ? 'active-cart' : ''}`}
+                  onClick={() => setActiveLink('cart')}
+                >
+                  <MdOutlineShoppingCart />
+                </button>
+              </Link>
+            </li>
         </ul>
     </nav>
   )

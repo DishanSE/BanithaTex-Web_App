@@ -13,10 +13,11 @@ const Checkout = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const selectedProducts = location.state?.selectedProducts || [];
-    
+
 
     // State for shipping address, payment method, and modal visibility
     const [shippingAddress, setShippingAddress] = React.useState('');
+    const [addressError, setAddressError] = useState('');
     const [paymentMethod, setPaymentMethod] = React.useState('cod'); // Default to "Card Payment"
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cardDetails, setCardDetails] = useState({
@@ -29,8 +30,17 @@ const Checkout = () => {
     const handlePlaceOrder = async () => {
         if (!isLoggedIn) {
             alert("Please log in to place an order.");
+            navigate('/login');
             return;
         }
+        setAddressError('');
+    
+        // Validate shipping address
+        if (!shippingAddress || shippingAddress.trim() === '') {
+            setAddressError('Shipping address is required');
+            return; // Prevent form submission
+        }
+    
         try {
             const orderData = {
                 user_id: user.id,
@@ -38,21 +48,42 @@ const Checkout = () => {
                 payment_method: paymentMethod,
                 cart: selectedProducts.map((item) => ({
                     product_id: item.product_id,
-                    product_name: item.product_name, // Include product_name
+                    product_name: item.product_name,
                     quantity: item.quantity,
-                    selected_count_id: Number(item.selected_count_id), // Ensure count ID is a number
+                    selected_count_id: Number(item.selected_count_id),
                     color: item.color,
                     price: item.price,
                 })),
             };
-
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, orderData);
+    
+            // Make sure your token is included in the request
+            const token = localStorage.getItem('token'); // Or however you store your auth token
+            
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/orders`, 
+                orderData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}` // Make sure token is included
+                    },
+                    // Prevent axios from auto-redirecting
+                    maxRedirects: 0
+                }
+            );
+            
             clearCart(); // Clear cart after successful order placement
             alert("Order placed successfully!");
             navigate('/customer/orders');
         } catch (err) {
-            console.error("Error placing order:", err.response?.data || err.message);
-            alert("Failed to place order. Please try again.");
+            console.error("Error placing order:", err);
+            
+            // Check if it's an authentication error
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                alert("Your session has expired. Please log in again.");
+                navigate('/login');
+            } else {
+                alert("Failed to place order: " + (err.response?.data?.error || err.message));
+            }
         }
     };
 
@@ -88,7 +119,9 @@ const Checkout = () => {
                                 value={shippingAddress}
                                 onChange={(e) => setShippingAddress(e.target.value)}
                                 rows="1"
+                                className={addressError ? "error" : ""}
                             />
+                            {addressError && <p className="error-message">{addressError}</p>}
                         </div>
 
                         {/* 2. Payment Method */}

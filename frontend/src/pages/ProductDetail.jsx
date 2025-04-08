@@ -208,7 +208,7 @@ const ProductDetail = () => {
                             <input
                                 type="number"
                                 id="quantity"
-                                min="1"
+                                min='10'
                                 max={product.stock_quantity}
                                 value={quantity}
                                 onChange={handleQuantityChange}

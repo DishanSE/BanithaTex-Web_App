@@ -5,6 +5,11 @@ const transporter = require('../config/nodemailer.js');
 exports.placeOrder = async (req, res) => {
     const { user_id, shipping_address, payment_method, cart } = req.body;
 
+    // Add validation for shipping address
+    if (!shipping_address) {
+        return res.status(400).json({ error: "Shipping address is required" });
+    }
+
     let connection;
     try {
         let totalAmount = 0;
@@ -80,7 +85,6 @@ exports.placeOrder = async (req, res) => {
 };
 
 
-// Fetch User Orders Controller
 exports.getUserOrders = async (req, res) => {
     const { id } = req.params;
 
@@ -91,7 +95,8 @@ exports.getUserOrders = async (req, res) => {
                 o.created_at AS placed_on,
                 p.name AS product_name,
                 oi.quantity,
-                oi.price,
+                p.price AS product_price,
+                o.total_amount,
                 o.status
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
@@ -114,7 +119,7 @@ exports.getUserOrders = async (req, res) => {
                     order_id: row.order_id,
                     placed_on: row.placed_on,
                     items: [],
-                    total: 0,
+                    total: row.total_amount, // Use the total_amount from the database
                     status: row.status,
                 };
                 // Add to orderIds array only once per order_id
@@ -123,9 +128,8 @@ exports.getUserOrders = async (req, res) => {
             acc[row.order_id].items.push({
                 product_name: row.product_name,
                 quantity: row.quantity,
-                price: row.price,
+                price: row.price, // Use the product_price from query
             });
-            acc[row.order_id].total += row.price * row.quantity;
             return acc;
         }, {});
 
@@ -205,21 +209,6 @@ exports.getAllOrders = async (req, res) => {
     }
 };
 
-
-// Update Order Status
-// exports.updateOrderStatus = async (req, res) => {
-//     const { id } = req.params;
-//     const { status } = req.body;
-
-//     try {
-//         await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
-//         res.json({ message: 'Order status updated successfully' });
-//     } catch (err) {
-//         console.error('Error updating order status:', err);
-//         res.status(500).json({ error: 'Failed to update order status' });
-//     }
-// };
-
 // Update Order Status
 exports.updateOrderStatus = async (req, res) => {
     const { id } = req.params; // Extract order ID from URL
@@ -295,7 +284,7 @@ const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
                             <strong>${item.product_name}</strong> - 
                             Quantity: ${item.quantity}, 
                             Color: ${item.color}, 
-                            Price: Rs. ${Number(item.price).toFixed(2)}
+                            Price: Rs. ${Number(item.total).toFixed(2)}
                         </li>
                     `).join('')}
                 </ul>

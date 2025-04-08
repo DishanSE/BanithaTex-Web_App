@@ -170,3 +170,12 @@ nav ul li a.Nav-link.active::before {
 .dropdown-item svg {
     margin-right: 10px;
 }
+
+
+/* Style for active profile button */
+.profile-btn.active-profile,
+.cart-btn.active-cart {
+    background-color: var(--btn_hover);
+    color: var(--black);
+    /* Add any other styling you want for the active state */
+  }

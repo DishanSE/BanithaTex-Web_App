@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import '../styles/ForgotPassword.css';
 
 const ResetPassword = () => {
@@ -70,7 +71,7 @@ const ResetPassword = () => {
                             onClick={togglePasswordVisibility}
                             tabIndex="-1"
                         >
-                            {showPassword ? '👁️' : '👁️‍🗨️'}
+                            {showPassword ? <FaEye /> : <FaEyeSlash />}
                         </button>
                     </div>
                 </label>
@@ -90,7 +91,7 @@ const ResetPassword = () => {
                             onClick={toggleConfirmPasswordVisibility}
                             tabIndex="-1"
                         >
-                            {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                            {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
                         </button>
                     </div>
                 </label>

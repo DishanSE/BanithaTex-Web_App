@@ -47,6 +47,16 @@
     color: var(--white);
 }
 
+textarea.error {
+    border: 1px solid red;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
 /* Payment Method Section */
 .payment-method {
     padding: 20px;
