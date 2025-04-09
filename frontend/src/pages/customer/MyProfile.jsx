@@ -120,7 +120,7 @@ const MyProfile = () => {
         }
     };
 
-    if (!profile) return <p>Loading profile...</p>;
+    if (!profile) return <p class="loader" >Loading profile...</p>;
 
     return (
         <div className="myprofile-page">

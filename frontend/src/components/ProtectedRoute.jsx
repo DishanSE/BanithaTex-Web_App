@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import Loader from '../assets/loader.gif'
 import apiClient from '../api/apiClient';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -21,9 +22,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         fetchUserRole();
     }, []);
 
-    if (loading) {
-        return <div className='btn'>Loading...</div>;
-    }
+    if (loading) return <div class="loader"><img src={Loader} /></div>;
 
     if (!role || !allowedRoles.includes(role)) {
         return <Navigate to="/login" />;

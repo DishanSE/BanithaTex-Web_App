@@ -1,6 +1,7 @@
 import React, { children } from 'react'
 import { createContext, useState, useEffect } from 'react'
 import apiClient from '../api/apiClient';
+import Loader from '../assets/loader.gif'
 
 export const AuthContext = createContext();
 
@@ -36,9 +37,7 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
+   if (loading) return <div class="loader"><img src={Loader} /></div>;
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, user, logout, checkAuth }}>

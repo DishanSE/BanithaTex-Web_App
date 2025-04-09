@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/Product.css';
+import Loader from '../assets/loader.gif'
 import { useNavigate } from 'react-router-dom';
 
 const Product = () => {
@@ -24,7 +25,7 @@ const Product = () => {
         fetchProducts();
     }, []);
 
-    if (loading) return <p>Loading products...</p>;
+    if (loading) return <div class="loader"><img src={Loader} /></div>;
     if (error) return <p>{error}</p>;
 
     // Group products by type_name and ensure unique product names within each type

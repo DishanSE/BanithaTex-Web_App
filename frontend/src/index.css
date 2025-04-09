@@ -52,3 +52,21 @@ a {
 .btn:hover {
   background-color: var(--btn_hover);
 }
+
+.loader{
+  position: relative;
+  background-color: var(--primary_color);
+  justify-content: center;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.loader img{
+  position: absolute;
+  width: 300px;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

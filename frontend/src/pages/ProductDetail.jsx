@@ -8,6 +8,7 @@ import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
 import { CartContext } from '../context/CartContext.jsx';
 import { AuthContext } from '../context/AuthContext.jsx';
+import Loader from '../assets/loader.gif'
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -78,7 +79,7 @@ const ProductDetail = () => {
     }, [id]);
 
 
-    if (loading) return <p>Loading product details...</p>;
+    if (loading) return <div class="loader"><img src={Loader} /></div>;
     if (error) return <p>{error}</p>;
 
     // Ensure unique product names in similar products
