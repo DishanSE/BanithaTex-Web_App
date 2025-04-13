@@ -4,11 +4,11 @@
     align-items: center;
     height: 100vh;
     width: 100%;
-    background-color: var(--primary_color);
+    background-color: #333;
 }
 
 .login {
-    background-color: #333;
+    background-color: var(--primary_color);
     border-radius: 8px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     width: 100%;

@@ -149,6 +149,7 @@ exports.forgotPassword = async (req, res) => {
             to: email,
             subject: 'Password Reset Request',
             html: `
+                <h2>Banitha Tex<h2/>
                 <p>You are receiving this email because you (or someone else) requested a password reset.</p>
                 <p>Please click the following link to reset your password:</p>
                 <a href="${resetLink}">${resetLink}</a>

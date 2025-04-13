@@ -258,10 +258,10 @@ const MyProfile = () => {
                                 />
                             </div>
                             <div className="p-modal-buttons">
-                                <button type="p-button" onClick={handleSavePassword}>
+                                <button type="button" onClick={handleSavePassword}>
                                     Save
                                 </button>
-                                <button type="p-button" onClick={closePasswordModal}>
+                                <button type="button" onClick={closePasswordModal}>
                                     Cancel
                                 </button>
                             </div>

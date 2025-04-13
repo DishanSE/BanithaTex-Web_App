@@ -18,7 +18,7 @@ const ProductDetail = () => {
 
     const [product, setProduct] = useState(null);
     const [colors, setColors] = useState([]);
-    const [counts, setCounts] = useState([]); // All count values for the product
+    const [counts, setCounts] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -107,8 +107,8 @@ const ProductDetail = () => {
             const countsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/counts/${selectedColor}`);
             if (countsResponse.data.length === 0) {
                 console.warn("No counts available for the selected color.");
-                setCounts([]); // Reset counts to an empty array
-                setSelectedCount(""); // Reset selected count
+                setCounts([]);
+                setSelectedCount("");
             } else {
                 setCounts(countsResponse.data);
             }
@@ -126,7 +126,7 @@ const ProductDetail = () => {
         try {
             const selectedOptions = {
                 color: selectedColor,
-                count: selectedCount, // This is now the ID of the count
+                count: selectedCount,
                 quantity: quantity,
             };
             await addToCart(product, selectedOptions);
@@ -146,7 +146,7 @@ const ProductDetail = () => {
 
         // Prepare the selected product data
         const selectedProduct = {
-            cart_item_id: Date.now(), // Temporary ID for the item
+            cart_item_id: Date.now(),
             product_id: product.id,
             product_name: product.name,
             product_image: product.image_url,
@@ -227,7 +227,7 @@ const ProductDetail = () => {
 
                 {/* Similar Products Section */}
                 <section className="similar-products">
-                    <h2>Similar Products</h2>
+                    <h2>Other Products</h2>
                     <Swiper
                         modules={[Navigation]}
                         spaceBetween={20}

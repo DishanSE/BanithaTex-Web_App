@@ -399,6 +399,7 @@ const ManageInventory = () => {
                                             description: e.target.value,
                                         })
                                     }
+                                    required
                                 />
                             </label>
                             <label>
@@ -450,6 +451,7 @@ const ManageInventory = () => {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                                    required
                                 />
                             </label>
                             <label>

@@ -22,7 +22,7 @@
     "dev": "nodemon server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "AR Dishan",
   "license": "ISC",
   "description": ""
 }

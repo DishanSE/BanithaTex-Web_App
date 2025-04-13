@@ -95,6 +95,7 @@ exports.getUserOrders = async (req, res) => {
                 o.created_at AS placed_on,
                 p.name AS product_name,
                 oi.quantity,
+                o.payment_method,
                 p.price AS product_price,
                 o.total_amount,
                 o.status
@@ -119,6 +120,7 @@ exports.getUserOrders = async (req, res) => {
                     order_id: row.order_id,
                     placed_on: row.placed_on,
                     items: [],
+                    payment_method: row.payment_method,
                     total: row.total_amount, // Use the total_amount from the database
                     status: row.status,
                 };
@@ -128,7 +130,7 @@ exports.getUserOrders = async (req, res) => {
             acc[row.order_id].items.push({
                 product_name: row.product_name,
                 quantity: row.quantity,
-                price: row.price, // Use the product_price from query
+                price: row.product_price, // Use the product_price from query
             });
             return acc;
         }, {});
@@ -284,7 +286,7 @@ const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
                             <strong>${item.product_name}</strong> - 
                             Quantity: ${item.quantity}, 
                             Color: ${item.color}, 
-                            Price: Rs. ${Number(item.total).toFixed(2)}
+                            Price: Rs. ${Number(item.price + 50).toFixed(2)}
                         </li>
                     `).join('')}
                 </ul>

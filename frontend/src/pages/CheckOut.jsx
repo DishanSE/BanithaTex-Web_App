@@ -18,7 +18,7 @@ const Checkout = () => {
     // State for shipping address, payment method, and modal visibility
     const [shippingAddress, setShippingAddress] = React.useState('');
     const [addressError, setAddressError] = useState('');
-    const [paymentMethod, setPaymentMethod] = React.useState('cod'); // Default to "Card Payment"
+    const [paymentMethod, setPaymentMethod] = React.useState('cod');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [cardDetails, setCardDetails] = useState({
         cardHolderName: '',
@@ -38,7 +38,7 @@ const Checkout = () => {
         // Validate shipping address
         if (!shippingAddress || shippingAddress.trim() === '') {
             setAddressError('Shipping address is required');
-            return; // Prevent form submission
+            return;
         }
     
         try {
@@ -59,48 +59,23 @@ const Checkout = () => {
             // Make sure your token is included in the request
             const token = localStorage.getItem('token'); // Or however you store your auth token
             
-            const response = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/api/orders`, 
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, 
                 orderData,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}` // Make sure token is included
+                        Authorization: `Bearer ${token}`
                     },
-                    // Prevent axios from auto-redirecting
                     maxRedirects: 0
                 }
             );
             
-            clearCart(); // Clear cart after successful order placement
+            clearCart();
             alert("Order placed successfully!");
             navigate('/customer/orders');
         } catch (err) {
             console.error("Error placing order:", err);
-            
-            // Check if it's an authentication error
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                alert("Your session has expired. Please log in again.");
-                navigate('/login');
-            } else {
-                alert("Failed to place order: " + (err.response?.data?.error || err.message));
-            }
         }
     };
-
-    const handleSaveCardDetails = () => {
-        console.log("Card Details: ", cardDetails);
-        console.log("Placing order with following deatails: ");
-        console.log("Shipping Address: ", shippingAddress);
-        console.log("Payment Method: ", paymentMethod);
-        console.log("Selected Products: ", selectedProducts);
-
-        const selectedCartItemIds = selectedProducts.map((item) => item.cart_item_id);
-        removeSelectedItems(selectedCartItemIds);
-        setSelectedItems([]);
-        alert("Order placed succesfully!..");
-        setIsModalOpen(false);
-        navigate('/customer/orders');
-    }
 
     return (
         <div className="checkout-page">

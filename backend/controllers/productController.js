@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const transporter = require('../config/nodemailer.js');
 
-// Get all products with yarn type, subtype, and count details
+// Get all products 
 exports.getProducts = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -152,8 +152,11 @@ exports.getProductCounts = async (req, res) => {
 
 // Add a new product
 exports.addProduct = async (req, res) => {
-    const connection = await db.getConnection(); // Begin a DB connection
+    const connection = await db.getConnection();
     try {
+        // Begin transaction
+        await connection.beginTransaction();
+        
         const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = req.body;
 
         // Validate that type_id exists in yarn_types
@@ -167,15 +170,28 @@ exports.addProduct = async (req, res) => {
         if (countRows.length === 0) {
             return res.status(400).json({ message: 'Invalid count_id' });
         }
+        
+        // Check for duplicate product (name, count_id, and color combination)
+        const [duplicateCheck] = await connection.query(
+            `SELECT p.id 
+             FROM products p
+             JOIN product_yarn_counts pyc ON p.id = pyc.product_id
+             WHERE p.name = ? AND pyc.yarn_count_id = ? AND pyc.color = ?`,
+            [name, count_id, color]
+        );
+        
+        if (duplicateCheck.length > 0) {
+            return res.status(400).json({ message: 'A product with this name, count, and color already exists' });
+        }
 
         // Decode and save the Base64 image
         let savedImagePath = '';
         if (image_url) {
-            const imageBuffer = Buffer.from(image_url, 'base64'); // Decode Base64
-            const fileName = `${Date.now()}-product.jpg`; // Generate a unique filename
+            const imageBuffer = Buffer.from(image_url, 'base64');
+            const fileName = `${Date.now()}-product.jpg`;
             const filePath = path.join(__dirname, '../uploads', fileName);
-            fs.writeFileSync(filePath, imageBuffer); // Save the file
-            savedImagePath = `/uploads/${fileName}`; // Relative path for database
+            fs.writeFileSync(filePath, imageBuffer);
+            savedImagePath = `/uploads/${fileName}`;
         }
 
         // Insert the new product
@@ -310,7 +326,6 @@ const notifyAdminLowStock = async (productId, productName, typeID, productColor,
             from: process.env.EMAIL_USER,
             to: 'dishanraj13@gmail.com',
             subject: 'Low Stock Alert',
-            // text: `Product ID ${productId} (Name: ${productName} | Product Type: ${typeID} | Color: ${productColor} | Count ID: ${countID}) has low stock: ${stockQuantity} kg`,
             html:`
                 <h1>LOW STOCK ALERT! FROM BANITHA TEX</h1>
                 <p>Product Deatils for ID: ${productId}</p>

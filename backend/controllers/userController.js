@@ -75,7 +75,7 @@ exports.getAllCustomers = async (req, res) => {
     try {
         // Query the database for users with role = 'customer'
         const [rows] = await db.query(
-            'SELECT id, first_name, last_name, email, gender, contact_no, created_at FROM users WHERE role = ?',
+            'SELECT id, first_name, last_name, email, gender, contact_no, created_at FROM users WHERE role = ? ORDER BY created_at DESC',
             ['customer']
         );
 

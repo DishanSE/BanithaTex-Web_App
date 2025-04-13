@@ -42,6 +42,7 @@ const MyOrders = () => {
                                 <th>Placed On</th>
                                 <th>Items</th>
                                 <th>Quantity</th>
+                                <th>Pay. Method</th>
                                 <th>Total</th>
                                 <th>Status</th>
                             </tr>
@@ -55,7 +56,10 @@ const MyOrders = () => {
                                             {format(new Date(order.placed_on), "MM-dd-yyyy")}
                                         </td>
                                         <td>{order.items[0].product_name}</td>
-                                        <td>{order.items[0].quantity}</td>
+                                        <td>{order.items[0].quantity} kg</td>
+                                        <td rowSpan={order.items.length}>
+                                            {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
+                                        </td>
                                         <td rowSpan={order.items.length}>Rs. {parseFloat(order.total).toLocaleString('en-us', {
                                             minimumFractionDigits: 2,
                                             maximumFractionDigits: 2
