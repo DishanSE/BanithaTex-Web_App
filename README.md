@@ -74,36 +74,6 @@ Banitha Tex is a full-featured e-commerce solution designed specifically for yar
 - Payment gateway used
 - Image storage solution used
 
-
-
-## Configuration
-
-Configure the application by editing the `.env` file:
-
-```
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# Database Configuration
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=banitha_tex
-
-# JWT Configuration
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-
-# Email Configuration (for password reset)
-EMAIL_SERVICE=gmail
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_email_password
-
-# Upload Configuration
-UPLOAD_PATH=./uploads
-```
-
 ## API Documentation
 
 ### User Authentication
@@ -244,9 +214,16 @@ Request body:
 
 ## Screenshots
 
+### Login Page
 ![login page](https://github.com/user-attachments/assets/1adb22b8-6564-4725-9115-03eec0ea497c)
+
+### Home Page
 ![home page](https://github.com/user-attachments/assets/010d528a-9dc5-4bc3-9b69-11fea5ed3c41)
+
+### Customer Dashboard
 ![customer dashboard](https://github.com/user-attachments/assets/21b0104b-f475-4983-bf59-56ee90aa158b)
+
+### Admin Dashboard
 ![admin dashboard](https://github.com/user-attachments/assets/fa1538d4-7029-4fdd-9ce6-d703837a5ba3)
 
 
