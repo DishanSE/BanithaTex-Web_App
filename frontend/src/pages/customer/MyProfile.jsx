@@ -42,7 +42,7 @@ const MyProfile = () => {
                 firstName: userData.first_name,
                 lastName: userData.last_name,
                 email: userData.email,
-                gender: userData.gender,
+                gender: userData.gender || '',
                 contactNo: userData.contact_no,
             });
         } catch (err) {
@@ -120,7 +120,13 @@ const MyProfile = () => {
         }
     };
 
-    if (!profile) return <p class="loader" >Loading profile...</p>;
+    // Format gender for display
+    const formatGender = (gender) => {
+        if (!gender) return 'Not specified';
+        return gender.charAt(0).toUpperCase() + gender.slice(1);
+    };
+
+    if (!profile) return <p className="loader">Loading profile...</p>;
 
     return (
         <div className="myprofile-page">
@@ -168,17 +174,24 @@ const MyProfile = () => {
                         {/* Gender */}
                         <div className="customer-form-group">
                             <label>Gender:</label>
-                            <select
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleInputChange}
-                                disabled={!isEditMode}
-                            >
-                                <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
+                            {isEditMode ? (
+                                <select
+                                    name="gender"
+                                    value={formData.gender}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            ) : (
+                                <input
+                                    type="text"
+                                    value={formatGender(formData.gender)}
+                                    readOnly
+                                />
+                            )}
                         </div>
 
                         {/* Contact Number */}

@@ -60,9 +60,19 @@ const Product = () => {
                             {uniqueProducts.map((product) => (
                                 <div key={product.id} className="product-item">
                                     {/* Use the image URL from the database */}
-                                    <img src={`${import.meta.env.VITE_BACKEND_URL}${product.image_url}`} alt={product.name} />
+                                    <img
+                                        src={`${import.meta.env.VITE_BACKEND_URL}${product.image_url}`}
+                                        alt={product.name}
+                                        loading='lazy'
+                                    />
                                     <h3>{product.name}</h3>
-                                    <button onClick={() => navigate(`/product/${product.id}`)} className="buy-now">Buy Now</button>
+                                    <button
+                                        onClick={() => navigate(`/product/${product.id}`)}
+                                        className="buy-now"
+                                        aria-label={`Buy ${product.name}`}
+                                    >
+                                        Buy Now
+                                    </button>
                                 </div>
                             ))}
                         </div>

@@ -11,15 +11,23 @@
     background: var(--primary_color);
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
     border-radius: 8px; 
+    transition: width 0.3s ease, margin-left 0.3s ease;
 }
 
 .myorders-container h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
     margin-bottom: 20px;
     color: var(--white);
     text-align: center;
 }
 
+.myorders-container p {
+    color: var(--white);
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Table Styles */
 .orders-table {
     width: 100%;
     border-collapse: collapse;
@@ -37,18 +45,126 @@
     background-color: var(--primary_color);
     font-weight: bold;
     color: var(--white);
-}
-
-/* Add bottom border to each row */
-/* .orders-table tr {
-    border-bottom: 1px solid #dddddd; 
-} */
-
-/* Remove top and side borders */
-.orders-table tr:last-child {
-    border-bottom: none; /* Remove border for the last row */
+    position: sticky;
+    top: 0;
 }
 
 .orders-table tr:hover {
     background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Table Styles */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+    .myorders-page {
+        padding: 1.5rem;
+    }
+    
+    .myorders-container {
+        width: calc(100% - 200px);
+    }
+    
+    .orders-table th,
+    .orders-table td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    .myorders-page {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .myorders-container {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 1rem;
+        padding: 15px;
+    }
+    
+    .orders-table {
+        display: block;
+    }
+    
+    /* Card view for mobile */
+    .order-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    .order-card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 0.5rem;
+    }
+    
+    .order-card-items {
+        margin: 0.5rem 0;
+    }
+    
+    .order-card-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.3rem 0;
+    }
+    
+    .order-card-footer {
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Hide table on mobile and show card view instead */
+    .desktop-table {
+        display: none;
+    }
+    
+    .mobile-cards {
+        display: block;
+    }
+}
+
+/* Small mobile styles */
+@media (max-width: 480px) {
+    .myorders-page {
+        padding: 0.5rem;
+    }
+    
+    .myorders-container {
+        padding: 10px;
+    }
+    
+    .myorders-container h1 {
+        font-size: 1.3rem;
+    }
+    
+    .order-card-header, 
+    .order-card-footer {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+}
+
+/* Default state for view toggles */
+.desktop-table {
+    display: table;
+}
+
+.mobile-cards {
+    display: none;
 }

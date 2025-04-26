@@ -1,8 +1,8 @@
-/* Global Styles */
 .myprofile-page {
     display: flex;
-    min-height: 100vh; /* Full viewport height */
+    min-height: 100vh;
     padding: 10%;
+    flex-direction: row;
 }
 
 /* Sidebar Spacing */
@@ -13,11 +13,12 @@
     background: var(--primary_color);
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4);
     border-radius: 8px; 
+    transition: width 0.3s ease, margin-left 0.3s ease;
 }
 
 /* Heading */
 .myprofile-container h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
     margin-bottom: 20px;
     color: var(--white);
     text-align: center;
@@ -25,17 +26,17 @@
 
 /* Profile Content */
 .myprofile-content {
-    background: var(--primary_color); /* Slightly lighter background */
+    background: var(--primary_color);
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Inner shadow for content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Form Styling */
 .myprofile-form {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Space between form fields */
+    gap: 15px;
 }
 
 .customer-form-group {
@@ -57,17 +58,20 @@
     font-size: 16px;
     background: var(--white);
     transition: border-color 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .customer-form-group input:focus,
 .customer-form-group select:focus {
-    border-color: var(--secondary_color); /* Highlight on focus */
+    border-color: var(--secondary_color);
     outline: none;
 }
 
 .customer-form-group input[readonly],
 .customer-form-group select:disabled {
-    background: var(--white); /* Grayed-out background for non-editable fields */
+    background: var(--white);
     cursor: not-allowed;
 }
 
@@ -75,7 +79,8 @@
 .customer-buttons {
     display: flex;
     gap: 10px;
-    justify-content: flex-end; /* Align buttons to the right */
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 .customer-buttons button {
@@ -86,22 +91,22 @@
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease, transform 0.3s ease;
+    min-width: 120px;
 }
 
 .customer-buttons button:first-child {
-    background: var(--secondary_color); /* Primary action button */
+    background: var(--secondary_color);
     color: var(--black);
 }
 
 .customer-buttons button:last-child {
-    background: #cccccc; /* Secondary action button */
+    background: #cccccc;
     color: #333333;
 }
 
 .customer-buttons button:hover {
-    transform: scale(1.05); /* Slight zoom effect on hover */
+    transform: scale(1.05);
 }
-
 
 /* Modal Overlay */
 .p-modal-overlay {
@@ -145,6 +150,7 @@
     font-size: 24px;
     cursor: pointer;
     color: #888888;
+    padding: 0 8px;
 }
 
 .p-close-btn:hover {
@@ -175,6 +181,8 @@
     border-radius: 4px;
     font-size: 16px;
     transition: border-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .p-password-form input:focus {
@@ -188,6 +196,7 @@
     gap: 10px;
     justify-content: flex-end;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .p-modal-buttons button {
@@ -198,6 +207,7 @@
     font-size: 16px;
     font-weight: bold;
     transition: background 0.3s ease, transform 0.3s ease;
+    min-width: 100px;
 }
 
 .p-modal-buttons button:first-child {
@@ -214,16 +224,88 @@
     transform: scale(1.05);
 }
 
+/* Loader */
+.loader {
+    text-align: center;
+    color: var(--white);
+    padding: 2rem;
+    font-size: 1.2rem;
+}
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .myprofile-container {
-        margin-left: 0; /* Remove sidebar spacing on smaller screens */
-        width: 100%; /* Full width */
+/* Responsive Design - Tablet */
+@media (max-width: 992px) {
+    .myprofile-page {
+        padding: 1.5rem;
     }
+    
+    .myprofile-container {
+        width: calc(100% - 200px);
+    }
+}
 
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
+    .myprofile-page {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .myprofile-container {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
     .customer-buttons {
-        flex-direction: column; /* Stack buttons vertically */
-        gap: 10px;
+        justify-content: center;
+    }
+    
+    .customer-buttons button {
+        width: 100%;
+    }
+    
+    .myprofile-container h1 {
+        font-size: 1.3rem;
+    }
+    
+    .p-modal-buttons {
+        justify-content: center;
+    }
+    
+    .p-modal-buttons button {
+        width: 100%;
+    }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+    .myprofile-page {
+        padding: 0.5rem;
+    }
+    
+    .myprofile-container {
+        padding: 15px;
+    }
+    
+    .myprofile-content {
+        padding: 15px;
+    }
+    
+    .customer-form-group input,
+    .customer-form-group select {
+        font-size: 14px;
+    }
+    
+    .customer-buttons button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    
+    .p-modal-content {
+        padding: 15px;
+    }
+    
+    .p-modal-header h2 {
+        font-size: 18px;
     }
 }

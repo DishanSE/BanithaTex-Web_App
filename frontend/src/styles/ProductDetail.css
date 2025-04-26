@@ -112,7 +112,7 @@
 }
 
 .success-message {
-    color: green;
+    color: rgb(100, 241, 100);
     font-size: 16px;
     margin-top: 10px;
 }

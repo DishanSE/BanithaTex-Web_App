@@ -25,6 +25,19 @@ const MyOrders = () => {
         }
     };
 
+    // Format price with commas and decimal places
+    const formatPrice = (price) => {
+        return parseFloat(price).toLocaleString('en-us', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    };
+
+    // Format payment method to capitalize first letter
+    const formatPaymentMethod = (method) => {
+        return method.charAt(0).toUpperCase() + method.slice(1);
+    };
+
     if (!isLoggedIn) return <p>Please log in to view your orders.</p>;
 
     return (
@@ -35,47 +48,87 @@ const MyOrders = () => {
                 {orders.length === 0 ? (
                     <p>No orders found.</p>
                 ) : (
-                    <table className="orders-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Placed On</th>
-                                <th>Items</th>
-                                <th>Quantity</th>
-                                <th>Pay. Method</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody >
-                            {orders.map((order) => (
-                                <React.Fragment key={order.order_id}>
+                    <>
+                        {/* Desktop/tablet view with traditional table */}
+                        <div className="table-container">
+                            <table className="orders-table desktop-table">
+                                <thead>
                                     <tr>
-                                        <td rowSpan={order.items.length}>{order.order_id}</td>
-                                        <td rowSpan={order.items.length}>
-                                            {format(new Date(order.placed_on), "MM-dd-yyyy")}
-                                        </td>
-                                        <td>{order.items[0].product_name}</td>
-                                        <td>{order.items[0].quantity} kg</td>
-                                        <td rowSpan={order.items.length}>
-                                            {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
-                                        </td>
-                                        <td rowSpan={order.items.length}>Rs. {parseFloat(order.total).toLocaleString('en-us', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        })}</td>
-                                        <td rowSpan={order.items.length}>{order.status}</td>
+                                        <th>Order ID</th>
+                                        <th>Placed On</th>
+                                        <th>Items</th>
+                                        <th>Quantity</th>
+                                        <th>Pay. Method</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
                                     </tr>
-                                    {order.items.slice(1).map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{item.product_name}</td>
-                                            <td>{item.quantity}</td>
-                                        </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order) => (
+                                        <React.Fragment key={order.order_id}>
+                                            <tr>
+                                                <td rowSpan={order.items.length}>{order.order_id}</td>
+                                                <td rowSpan={order.items.length}>
+                                                    {format(new Date(order.placed_on), "MM-dd-yyyy")}
+                                                </td>
+                                                <td>{order.items[0].product_name}</td>
+                                                <td>{order.items[0].quantity} kg</td>
+                                                <td rowSpan={order.items.length}>
+                                                    {formatPaymentMethod(order.payment_method)}
+                                                </td>
+                                                <td rowSpan={order.items.length}>Rs. {formatPrice(order.total)}</td>
+                                                <td rowSpan={order.items.length}>{order.status}</td>
+                                            </tr>
+                                            {order.items.slice(1).map((item, index) => (
+                                                <tr key={index}>
+                                                    <td>{item.product_name}</td>
+                                                    <td>{item.quantity} kg</td>
+                                                </tr>
+                                            ))}
+                                        </React.Fragment>
                                     ))}
-                                </React.Fragment>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile view with card layout */}
+                        <div className="mobile-cards">
+                            {orders.map((order) => (
+                                <div className="order-card" key={order.order_id}>
+                                    <div className="order-card-header">
+                                        <div>
+                                            <strong>Order ID:</strong> {order.order_id}
+                                        </div>
+                                        <div>
+                                            <strong>Date:</strong> {format(new Date(order.placed_on), "MM-dd-yyyy")}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="order-card-items">
+                                        <strong>Items:</strong>
+                                        {order.items.map((item, index) => (
+                                            <div className="order-card-item" key={index}>
+                                                <span>{item.product_name}</span>
+                                                <span>{item.quantity} kg</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    <div className="order-card-footer">
+                                        <div>
+                                            <strong>Payment:</strong> {formatPaymentMethod(order.payment_method)}
+                                        </div>
+                                        <div>
+                                            <strong>Total:</strong> Rs. {formatPrice(order.total)}
+                                        </div>
+                                        <div>
+                                            <strong>Status:</strong> {order.status}
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

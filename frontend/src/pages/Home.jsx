@@ -31,7 +31,7 @@ const Home = () => {
 
       <div className="product-content">
         <div className="product-img">
-          <img src={ BackgroundImage } alt="" />
+          <img src={ BackgroundImage } alt="Quality Yarn Products" />
         </div>
         <div className="product-text">
           <h1>Quality Yarn for <br /> All Needs</h1>
@@ -65,7 +65,6 @@ const Home = () => {
       <div className="product-categories">
         <h2>Product Categories</h2>
         <div className="categories-container">
-
           <Link to='/product'>
             <div className="category-item">
               <div className="category-image">

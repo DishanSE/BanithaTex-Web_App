@@ -1,36 +1,37 @@
 .footer {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    height: 160px;
+    min-height: 160px;
     background-color: var(--primary_color);
     color: var(--white);
     position: relative;
     bottom: 0;
     width: 100%;
-    padding-left: 10%;
-    padding-right: 10%;
+    padding: 20px 10%;
     box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .footer-nav {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
     display: flex;
-    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .footer-nav ul {
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .footer-nav ul li {
     display: inline-block;
     list-style: none;
-    margin: 30px 20px;
+    margin: 10px;
     font-size: 16px;
     text-decoration: none;
     color: var(--text_color);
@@ -41,23 +42,25 @@
     color: var(--secondary_color);
 }
 
+.footer-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .footer-brand {
-    position: absolute;
-    bottom: 15px;
-    left: 10%;
+    font-size: 14px;
 }
 
 .footer-social {
-    position: absolute;
-    bottom: 15px;
-    right: 10%;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .footer-social p {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     margin: 0;
 }
@@ -81,4 +84,31 @@
 .social-btn:hover {
     background-color: var(--secondary_color);
     color: var(--primary_color);
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 768px) {
+    .footer {
+        padding: 20px 3%;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .footer-brand {
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .footer-nav ul li {
+        margin: 8px 5px;
+        font-size: 14px;
+    }
+    
+    .footer-social p {
+        display: none; /* Hide text on very small screens */
+    }
 }

@@ -17,6 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 15px;
 }
 
 .abouts-text {
@@ -37,8 +38,10 @@
 }
 
 .about-image img {
-    width: 400px;
-    height: 400px;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 1/1;
     object-fit: cover;
     border-radius: none;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
@@ -46,7 +49,9 @@
 
 .about-text {
     flex: 1;
-    height: 400px;
+    height: auto;
+    min-height: 400px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -102,9 +107,12 @@
 }
 
 .mission-box h2 {
-    font-size: 40px;
+    font-size: 32px;
     font-weight: bold;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .mission-box h2::after {
@@ -121,4 +129,93 @@
     line-height: 1.6;
     color: var(--text_color);
     margin-bottom: 10px;
+}
+
+/* Media Queries for Responsiveness */
+@media screen and (max-width: 1024px) {
+    .abouts-text h1 {
+        font-size: 50px;
+    }
+    
+    .mission-box h2 {
+        font-size: 28px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .about-container,
+    .mission-container {
+        padding: 30px 3%;
+    }
+    
+    .abouts {
+        min-height: 60vh;
+    }
+    
+    .abouts-text h1 {
+        font-size: 40px;
+    }
+    
+    .about-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .about-image {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .about-image img {
+        max-width: 300px;
+    }
+    
+    .about-text {
+        width: 100%;
+        min-height: auto;
+        padding: 25px;
+    }
+    
+    .mission-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .about-container,
+    .mission-container {
+        padding: 20px 3%;
+        gap: 30px;
+    }
+    
+    .abouts {
+        min-height: 50vh;
+    }
+    
+    .abouts-text h1 {
+        font-size: 32px;
+    }
+    
+    .about-text h2 {
+        font-size: 24px;
+    }
+    
+    .about-text p,
+    .mission-box p {
+        font-size: 14px;
+    }
+    
+    .mission-box {
+        padding: 20px;
+    }
+    
+    .mission-box h2 {
+        font-size: 24px;
+    }
+    
+    .mission-box h2::after {
+        margin: 10px 0 20px 0;
+    }
 }

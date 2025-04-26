@@ -148,21 +148,34 @@ textarea.error {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it appears above other content */
+    z-index: 1000;
+    backdrop-filter: blur(3px);
 }
 
 /* Modal Content */
 .modal-content {
-    background: var(--primary_color); /* Primary background color */
-    color: #fff; /* White text */
-    padding: 20px;
-    border-radius: 8px;
-    width: 600px; /* Adjust width as needed */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #1a1a24;
+    color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Modal Header */
@@ -170,41 +183,117 @@ textarea.error {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h2 {
     margin: 0;
     font-size: 24px;
+    font-weight: 600;
+    color: #fff;
 }
 
 .close-btn {
-    font-size: 24px;
+    font-size: 28px;
     cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+    line-height: 0.8;
 }
 
 .close-btn:hover {
-    color: #ccc; /* Lighter color on hover */
+    color: #fff;
 }
 
-/* Form Grid Layout */
+/* Form Grid Layout - 2 columns */
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two columns */
-    gap: 15px; /* Space between inputs */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
 }
 
 /* Form Group Styling */
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    color: #333; /* Dark text for better visibility in inputs */
-    background: #fff; /* White background for inputs */
+.forms-group {
+    position: relative;
+    margin-bottom: 10px;
 }
 
+.forms-group input {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 16px;
+    color: #fff;
+    transition: all 0.3s;
+}
+
+.forms-group input:focus {
+    outline: none;
+    border-color: var(--secondary_color);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.forms-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Error styling */
+.forms-group input.error {
+    border-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.05);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+}
+
+/* Place Order Button */
 .save {
-    margin-top: 20px;
+    width: 100%;
+    padding: 16px;
+    background: var(--secondary_color);
+    color: var(--black);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.save:hover {
+    background: var(--btn_hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.save:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustment for smaller screens */
+@media (max-width: 580px) {
+    .modal-content {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .forms-group input {
+        padding: 12px;
+    }
 }

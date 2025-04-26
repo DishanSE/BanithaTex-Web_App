@@ -86,7 +86,7 @@ const ContactUs = () => {
 
     <div className="contact-form-section">
       <div className="contact-image">
-        <img src={Conatct} alt="contact image" />
+        <img src={Conatct} alt="contact image" loading='lazy'/>
       </div>
 
       <div className="contact-form">

@@ -8,17 +8,22 @@
     display: flex;
     gap: 20px;
     width: 100%;
+    max-width: 1200px;
+    flex-direction: row;
 }
 
 /* Left Side: Product List */
 .products-list {
     flex: 2;
-    /* Take up more space for the product list */
     background-color: var(--primary_color);
     color: var(--white);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.products-list h1 {
+    margin-bottom: 20px;
 }
 
 .products-list p {
@@ -29,7 +34,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* Add spacing between cart items */
 }
 
 .cart-item {
@@ -38,6 +42,7 @@
     gap: 10px;
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
+    flex-wrap: wrap;
 }
 
 .cart-checkbox {
@@ -50,17 +55,16 @@
 .products-image {
     width: 90px;
     height: 90px;
-    max-width: 100%;
-    /* Ensure the image doesn't exceed its container's width */
     object-fit: cover;
+    border-radius: 4px;
 }
 
 .products-info {
     flex: 1;
-    /* Take up remaining space */
     display: flex;
     flex-direction: column;
     gap: 5px;
+    min-width: 150px;
 }
 
 .products-name {
@@ -73,12 +77,18 @@
     display: flex;
     gap: 10px;
     font-size: 16px;
+    flex-wrap: wrap;
+}
+
+.products-details p {
+    margin: 0;
 }
 
 .products-price {
     font-weight: bold;
     font-size: 18px;
     color: var(--white);
+    margin: 5px 0;
 }
 
 .remove-button {
@@ -88,8 +98,9 @@
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: auto;
-    /* Push to the right */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .remove-button:hover {
@@ -99,11 +110,9 @@
 /* Right Side: Summary and Payment Options */
 .right-side {
     flex: 1;
-    /* Take up less space for the summary and payment options */
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* Add spacing between summary and payment options */
 }
 
 /* Summary and Payment Options Styling */
@@ -129,15 +138,30 @@
 
 .summary-details p {
     display: flex;
-    justify-content: space-between; /* Align text to left and right */
+    justify-content: space-between;
     font-size: 16px;
     color: var(--white);
     width: 100%;
+    margin: 0;
 }
 
-.clear,
-.checkout {
+button.clear,
+button.checkout {
     margin-top: 20px;
+    background-color: var(--secondary_color);
+    color: var(--black);
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+button.clear:hover,
+button.checkout:hover {
+    background-color: var(--btn_hover);
 }
 
 .payment-icons {
@@ -156,7 +180,6 @@
     opacity: 0.8;
 }
 
-
 /* Modal Overlay */
 .modals-overlay {
     position: fixed;
@@ -164,20 +187,21 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it appears above other content */
+    z-index: 1000;
 }
 
 /* Modals Content */
 .modals-content {
-    background: var(--primary_color); /* Primary background color */
-    color: var(--white); /* White text */
+    background: var(--primary_color);
+    color: var(--white);
     padding: 20px;
     border-radius: 8px;
-    width: 300px; /* Adjust width as needed */
+    width: 90%;
+    max-width: 300px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
@@ -192,7 +216,8 @@
 
 .modals-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    gap: 10px;
 }
 
 .modals-actions .btn {
@@ -201,13 +226,72 @@
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    flex: 1;
 }
 
-.modals-actions .btn-secondary, .btn-danger {
+.modals-actions .btn-secondary,
+.modals-actions .btn-danger {
     background: var(--secondary_color);
     color: var(--black);
 }
 
-.modals-actions .btn-secondary:hover, .btn-danger:hover {
+.modals-actions .btn-secondary:hover,
+.modals-actions .btn-danger:hover {
     background: var(--btn_hover);
+}
+
+/* Responsive styles */
+@media screen and (max-width: 900px) {
+    .cart-container {
+        flex-direction: column;
+    }
+    
+    .right-side {
+        width: 100%;
+    }
+    
+    .cart-page {
+        padding: 20px 10px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+        padding-bottom: 15px;
+    }
+    
+    .cart-checkbox {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .products-image {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        margin: 10px 0;
+    }
+    
+    .products-info {
+        width: 100%;
+    }
+    
+    .products-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .remove-button {
+        align-self: flex-end;
+        margin-top: 10px;
+    }
+    
+    .products-name {
+        font-size: 18px;
+        padding-right: 30px; /* Make room for checkbox */
+    }
 }

@@ -16,16 +16,18 @@ function Footer() {
         </ul>
       </div>
 
-      <div className="footer-brand">
-        <h2>Banitha Tex</h2>
-        <p>&copy; {new Date().getFullYear()} All Rights Reserved.</p>
-      </div>
+      <div className="footer-bottom">
+        <div className="footer-brand">
+          <h2>Banitha Tex</h2>
+          <p>&copy; {new Date().getFullYear()} All Rights Reserved.</p>
+        </div>
 
-      <div className="footer-social">
-        <h2>Follow Us:</h2>
-        <a className='social-btn' href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebookF  /></a>
-        <a className='social-btn' href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram  /></a>
-        <a className='social-btn' href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaTwitter  /></a>
+        <div className="footer-social">
+          <h2>Follow Us:</h2>
+          <a className='social-btn' href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
+          <a className='social-btn' href="https://instagram.com" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
+          <a className='social-btn' href="https://twitter.com" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
+        </div>
       </div>
     </footer>
   );
