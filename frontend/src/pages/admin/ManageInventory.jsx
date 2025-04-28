@@ -58,7 +58,20 @@ const ManageInventory = () => {
     };
 
     const handleEditProduct = (product) => {
-        setSelectedProduct(product);
+        // Find the type_id based on type_name
+        const typeObj = yarnTypes.find(type => type.name === product.type_name);
+        const type_id = typeObj ? typeObj.id : '';
+        
+        // Find the count_id based on counts value
+        const countObj = yarnCounts.find(count => count.count_value === product.counts);
+        const count_id = countObj ? countObj.id : '';
+        
+        // Update the selectedProduct with the correct IDs
+        setSelectedProduct({
+            ...product,
+            type_id,
+            count_id
+        });
         setIsEditModalOpen(true);
     };
 
@@ -158,6 +171,18 @@ const ManageInventory = () => {
             console.error('Error deleting product:', err.response?.data || err.message);
             alert('Failed to delete product. Please try again.');
         }
+    };
+
+    // Find type name from type_id
+    const getTypeName = (typeId) => {
+        const type = yarnTypes.find(t => t.id === Number(typeId) || t.id === typeId);
+        return type ? type.name : 'Unknown';
+    };
+
+    // Find count value from count_id
+    const getCountValue = (countId) => {
+        const count = yarnCounts.find(c => c.id === Number(countId) || c.id === countId);
+        return count ? count.count_value : 'Unknown';
     };
 
     return (

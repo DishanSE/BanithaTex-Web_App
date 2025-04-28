@@ -61,7 +61,7 @@ export const CartProvider = ({ children }) => {
         try {
             const selectedOptions = {
                 color: selectedColor,
-                count: selectedCount, // This is now the ID of the count
+                count: selectedCount,
                 quantity: quantity,
             };
             await addToCart(product, selectedOptions);
@@ -87,17 +87,26 @@ export const CartProvider = ({ children }) => {
     const clearCart = async () => {
         try {
             await apiClient.delete('/cart', { params: { user_id: user.id } });
-            setCart([]); // Clear cart locally
+            setCart([]);
         } catch (err) {
             console.error("Error clearing cart:", err);
         }
     };
 
     // Remove specific items from the cart
-    const removeSelectedItems = (selectedCartItemIds) => {
-        setCart((prevCart) =>
-            prevCart.filter((item) => !selectedCartItemIds.includes(item.cart_item_id))
-        );
+    const removeSelectedItems = async (selectedCartItemIds) => {
+        try {
+            for (const itemId of selectedCartItemIds) {
+                await apiClient.delete(`/cart/${itemId}`);
+            }
+            
+            setCart((prevCart) =>
+                prevCart.filter((item) => !selectedCartItemIds.includes(item.cart_item_id))
+            );
+        } catch (err) {
+            console.error("Error removing selected items from cart: ", err)
+        }
+        
     }
 
     return (

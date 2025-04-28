@@ -57,8 +57,7 @@ const Checkout = () => {
                 })),
             };
 
-            // Make sure your token is included in the request
-            const token = localStorage.getItem('token'); // Or however you store your auth token
+            const token = localStorage.getItem('token');
 
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`,
                 orderData,
@@ -70,7 +69,9 @@ const Checkout = () => {
                 }
             );
 
-            clearCart();
+            const selectedCartItemIds = selectedProducts.map(item => item.cart_item_id);
+            removeSelectedItems(selectedCartItemIds);
+            
             alert("Order placed successfully!");
             navigate('/customer/orders');
         } catch (err) {
