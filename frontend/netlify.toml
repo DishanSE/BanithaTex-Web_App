@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "build"
+  publish = "dist"
 
 [[redirects]]
   from = "/*"
@@ -33,6 +33,6 @@
     Content-Type = "text/javascript"
 
 [[headers]]
-  for = "/static/js/*.js"
+  for = "/assets/**/*.js"
   [headers.values]
     Content-Type = "text/javascript"
