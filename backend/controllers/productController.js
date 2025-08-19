@@ -7,7 +7,7 @@ const transporter = require('../config/nodemailer.js');
 // Get all products 
 exports.getProducts = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const result = await db.query(`
             SELECT 
                 p.id, 
                 p.name, 
@@ -18,16 +18,16 @@ exports.getProducts = async (req, res) => {
                 p.image_url,
                 p.updated_at,
                 yt.name AS type_name,
-                GROUP_CONCAT(DISTINCT yc.count_value ORDER BY yc.count_value ASC SEPARATOR ', ') AS counts
+                STRING_AGG(DISTINCT yc.count_value::text, ', ' ORDER BY yc.count_value::text ASC) AS counts
             FROM products p
             JOIN yarn_types yt ON p.type_id = yt.id
             LEFT JOIN product_yarn_counts pyc ON p.id = pyc.product_id
             LEFT JOIN yarn_counts yc ON pyc.yarn_count_id = yc.id
-            GROUP BY p.id
+            GROUP BY p.id, p.name, p.description, p.price, p.color, p.stock_quantity, p.image_url, p.updated_at, yt.name
             ORDER BY p.updated_at DESC
         `);
 
-        const products = rows.map(row => ({
+        const products = result.rows.map(row => ({
             ...row,
             price: parseFloat(row.price),
             updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : null,
@@ -46,7 +46,7 @@ exports.getProductById = async (req, res) => {
         const { id } = req.params;
 
         // Query to fetch product details along with associated counts
-        const [rows] = await db.query(`
+        const result = await db.query(`
             SELECT 
                 p.id, 
                 p.name, 
@@ -56,21 +56,21 @@ exports.getProductById = async (req, res) => {
                 p.stock_quantity, 
                 p.image_url,
                 yt.name AS type_name,
-                GROUP_CONCAT(DISTINCT yc.count_value ORDER BY yc.count_value ASC SEPARATOR ', ') AS counts
+                STRING_AGG(DISTINCT yc.count_value::text, ', ' ORDER BY yc.count_value::text ASC) AS counts
             FROM products p
             JOIN yarn_types yt ON p.type_id = yt.id
             LEFT JOIN product_yarn_counts pyc ON p.id = pyc.product_id
             LEFT JOIN yarn_counts yc ON pyc.yarn_count_id = yc.id
-            WHERE p.id = ?
-            GROUP BY p.id
+            WHERE p.id = $1
+            GROUP BY p.id, p.name, p.description, p.price, p.color, p.stock_quantity, p.image_url, yt.name
         `, [id]);
 
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
         // Process the result
-        const product = rows[0];
+        const product = result.rows[0];
         product.price = parseFloat(product.price);
 
         res.status(200).json(product);
@@ -86,27 +86,27 @@ exports.getProductColors = async (req, res) => {
         const { id } = req.params;
 
         // Fetch the product name using the provided product ID
-        const [productRows] = await db.query('SELECT name FROM products WHERE id = ?', [id]);
-        if (productRows.length === 0) {
+        const productResult = await db.query('SELECT name FROM products WHERE id = $1', [id]);
+        if (productResult.rows.length === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
-        const productName = productRows[0].name;
+        const productName = productResult.rows[0].name;
 
         // Query the database to get available colors for the product name
-        const [rows] = await db.query(
+        const result = await db.query(
             `
             SELECT DISTINCT p.color 
             FROM products p
-            WHERE p.name = ?
+            WHERE p.name = $1
             `,
             [productName]
         );
 
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No colors found for this product' });
         }
 
-        const colors = rows.map(row => row.color);
+        const colors = result.rows.map(row => row.color);
         res.status(200).json(colors);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -120,25 +120,25 @@ exports.getProductCounts = async (req, res) => {
         const { id } = req.params;
 
         // Fetch the product name using the provided product ID
-        const [productRows] = await db.query('SELECT name FROM products WHERE id = ?', [id]);
-        if (productRows.length === 0) {
+        const productResult = await db.query('SELECT name FROM products WHERE id = $1', [id]);
+        if (productResult.rows.length === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
-        const productName = productRows[0].name;
+        const productName = productResult.rows[0].name;
 
         // Fetch all counts for the product name
-        const [rows] = await db.query(
+        const result = await db.query(
             `
             SELECT DISTINCT yc.id, yc.count_value 
             FROM products p
             JOIN product_yarn_counts pyc ON p.id = pyc.product_id
             JOIN yarn_counts yc ON pyc.yarn_count_id = yc.id
-            WHERE p.name = ?
+            WHERE p.name = $1
             `,
             [productName]
         );
 
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: "No counts found for this product." });
         }
 
@@ -152,35 +152,35 @@ exports.getProductCounts = async (req, res) => {
 
 // Add a new product
 exports.addProduct = async (req, res) => {
-    const connection = await db.getConnection();
+    const client = await db.connect();
     try {
         // Begin transaction
-        await connection.beginTransaction();
+        await client.query('BEGIN');
         
         const { name, description, price, color, stock_quantity, image_url, type_id, count_id } = req.body;
 
         // Validate that type_id exists in yarn_types
-        const [typeRows] = await connection.query('SELECT id FROM yarn_types WHERE id = ?', [type_id]);
-        if (typeRows.length === 0) {
+        const typeRessult = await client.query('SELECT id FROM yarn_types WHERE id = $1', [type_id]);
+        if (typeRessult.rows.length === 0) {
             return res.status(400).json({ message: 'Invalid type_id' });
         }
 
         // Validate that count_id exists in yarn_counts
-        const [countRows] = await connection.query('SELECT id FROM yarn_counts WHERE id = ?', [count_id]);
-        if (countRows.length === 0) {
+        const countResult = await client.query('SELECT id FROM yarn_counts WHERE id = $1', [count_id]);
+        if (countResult.rows.length === 0) {
             return res.status(400).json({ message: 'Invalid count_id' });
         }
         
         // Check for duplicate product (name, count_id, and color combination)
-        const [duplicateCheck] = await connection.query(
+        const duplicatedResult = await client.query(
             `SELECT p.id 
              FROM products p
              JOIN product_yarn_counts pyc ON p.id = pyc.product_id
-             WHERE p.name = ? AND pyc.yarn_count_id = ? AND pyc.color = ?`,
+             WHERE p.name = $1 AND pyc.yarn_count_id = $2 AND pyc.color = $3`,
             [name, count_id, color]
         );
         
-        if (duplicateCheck.length > 0) {
+        if (duplicatedResult.rows.length > 0) {
             return res.status(400).json({ message: 'A product with this name, count, and color already exists' });
         }
 
@@ -195,29 +195,29 @@ exports.addProduct = async (req, res) => {
         }
 
         // Insert the new product
-        const [result] = await connection.query(
-            'INSERT INTO products (name, description, price, color, stock_quantity, image_url, type_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        const result = await client.query(
+            'INSERT INTO products (name, description, price, color, stock_quantity, image_url, type_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
             [name, description, price, color, stock_quantity, savedImagePath, type_id]
         );
 
-        const productId = result.insertId;
+        const productId = result.rows[0].id;
 
         // Now insert into product_yarn_counts table
-        await connection.query(
-            'INSERT INTO product_yarn_counts (product_id, yarn_count_id, color) VALUES (?, ?, ?)',
+        await client.query(
+            'INSERT INTO product_yarn_counts (product_id, yarn_count_id, color) VALUES ($1, $2, $3)',
             [productId, count_id, color]
         );
         
         // Commit transaction
-        await connection.commit();
+        await client.query('COMMIT');
 
         res.status(201).json({ message: 'Product added successfully!', productId: productId });
     } catch (error) {
-        await connection.rollback();
+        await client.query('ROLLBACK');
         console.error('Error adding product:', error);
         res.status(500).json({ message: error.message });
     } finally {
-        connection.release(); // Release the DB connection
+        client.release(); // Release the DB connection
     }
 };
 
@@ -244,25 +244,25 @@ exports.updateProduct = async (req, res) => {
         }
 
         // Validate type_id
-        const [typeRows] = await db.query('SELECT id FROM yarn_types WHERE id = ?', [type_id]);
-        if (typeRows.length === 0) {
+        const typeResult = await db.query('SELECT id FROM yarn_types WHERE id = $1', [type_id]);
+        if (typeResult.rows.length === 0) {
             return res.status(400).json({ message: 'Invalid type_id' });
         }
 
         // Validate count_id
-        const [countRows] = await db.query('SELECT id FROM yarn_counts WHERE id = ?', [count_id]);
-        if (countRows.length === 0) {
+        const countResult = await db.query('SELECT id FROM yarn_counts WHERE id = $1', [count_id]);
+        if (countResult.rows.length === 0) {
             return res.status(400).json({ message: 'Invalid count_id' });
         }
 
         // Update the product in the database
-        const [result] = await db.query(
-            'UPDATE products SET name = ?, description = ?, price = ?, color = ?, stock_quantity = ?, image_url = ?, type_id = ? WHERE id = ?',
+        const result = await db.query(
+            'UPDATE products SET name = $1, description = $2, price = $3, color = $4, stock_quantity = $5, image_url = $6, type_id = $7 WHERE id = $8',
             [name, description, price, color, stock_quantity, image_url, type_id, id]
         );
 
         // Check if the product was found and updated
-        if (result.affectedRows === 0) {
+        if (result.rowCount === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
@@ -283,8 +283,8 @@ exports.updateProduct = async (req, res) => {
 // Delete a product
 exports.deleteProduct = async (req, res) => {
     try {
-        const [result] = await db.query('DELETE FROM products WHERE id = ?', [req.params.id]);
-        if (result.affectedRows === 0) return res.status(404).json({ message: 'Product not found' });
+        const result = await db.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+        if (result.rowCount === 0) return res.status(404).json({ message: 'Product not found' });
         res.status(200).json({ message: 'Product deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -294,11 +294,11 @@ exports.deleteProduct = async (req, res) => {
 // Fetch All Yarn Types
 exports.getYarnTypes = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, name FROM yarn_types');
-        if (rows.length === 0) {
+        const result = await db.query('SELECT id, name FROM yarn_types');
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No yarn types found' });
         }
-        res.status(200).json(rows);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching yarn types:', error);
         res.status(500).json({ message: 'Failed to fetch yarn types' });
@@ -308,11 +308,11 @@ exports.getYarnTypes = async (req, res) => {
 // Fetch All Yarn Counts
 exports.getYarnCounts = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT id, count_value FROM yarn_counts');
-        if (rows.length === 0) {
+        const result = await db.query('SELECT id, count_value FROM yarn_counts');
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No yarn counts found' });
         }
-        res.status(200).json(rows);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching yarn counts:', error);
         res.status(500).json({ message: 'Failed to fetch yarn counts' });
@@ -350,29 +350,29 @@ exports.getAvailableCounts = async (req, res) => {
         const { id, color } = req.params;
 
         // Fetch the product name using the provided product ID
-        const [productRows] = await db.query('SELECT name FROM products WHERE id = ?', [id]);
-        if (productRows.length === 0) {
+        const productResult = await db.query('SELECT name FROM products WHERE id = $1', [id]);
+        if (productResult.rows.length === 0) {
             return res.status(404).json({ message: 'Product not found' });
         }
-        const productName = productRows[0].name;
+        const productName = productResult.rows[0].name;
 
         // Query the database to get available counts for the product name and color
-        const [rows] = await db.query(
+        const result = await db.query(
             `
             SELECT DISTINCT yc.id, yc.count_value 
             FROM products p
             JOIN product_yarn_counts pyc ON p.id = pyc.product_id
             JOIN yarn_counts yc ON pyc.yarn_count_id = yc.id
-            WHERE p.name = ? AND p.color = ?
+            WHERE p.name = $1 AND p.color = $2
             `,
             [productName, color]
         );
 
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No counts found for the given product and color.' });
         }
 
-        res.status(200).json(rows);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching available counts:', error);
         res.status(500).json({ message: 'Server error' });

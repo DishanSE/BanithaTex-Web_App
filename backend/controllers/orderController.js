@@ -5,68 +5,86 @@ const transporter = require('../config/nodemailer.js');
 exports.placeOrder = async (req, res) => {
     const { user_id, shipping_address, payment_method, cart } = req.body;
 
-    // Add validation for shipping address
+    // Add validation for shipping address and cart
     if (!shipping_address) {
         return res.status(400).json({ error: "Shipping address is required" });
     }
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+        return res.status(400).json({ error: "Cart is required and must be a non-empty array" });
+    }
 
-    let connection;
+    const client = await db.connect();
     try {
         let totalAmount = 0;
-        connection = await db.getConnection(); // Get a connection from the pool
 
         // Start transaction
-        await connection.beginTransaction();
+        await client.query('BEGIN');
 
-        // Check stock and calculate total amount
+        // Check stock and validate selected_count_id
         for (const item of cart) {
-            const [product] = await connection.query(
-                "SELECT stock_quantity FROM products WHERE id = ?",
+            // Validate required fields in cart item
+            if (!item.product_id || !item.quantity || !item.price) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: `Invalid cart item: missing product_id, quantity, or price` });
+            }
+
+            // Check stock
+            const productResult = await client.query(
+                "SELECT stock_quantity FROM products WHERE id = $1",
                 [item.product_id]
             );
 
-            if (!product.length || product[0].stock_quantity < item.quantity) {
-                await connection.rollback();
-                connection.release();
+            if (!productResult.rows.length || productResult.rows[0].stock_quantity < item.quantity) {
+                await client.query('ROLLBACK');
                 return res.status(400).json({ error: `Insufficient stock for product ID ${item.product_id}` });
             }
 
-            // Convert price to number before multiplication
+            // Validate selected_count_id if provided
+            if (item.selected_count_id) {
+                const countResult = await client.query(
+                    "SELECT id FROM yarn_counts WHERE id = $1",
+                    [item.selected_count_id]
+                );
+                if (!countResult.rows.length) {
+                    await client.query('ROLLBACK');
+                    return res.status(400).json({ error: `Invalid selected_count_id ${item.selected_count_id} for product ID ${item.product_id}` });
+                }
+            }
+
+            // Calculate total amount
             const itemPrice = parseFloat(item.price);
-            totalAmount += itemPrice;
+            totalAmount += itemPrice * item.quantity; // Fixed: Multiply by quantity
         }
 
-        totalAmount += 50;
-
+        totalAmount += 50; // Shipping or fixed fee
 
         // Insert into orders table
-        const [orderResult] = await connection.query(
-            "INSERT INTO orders (user_id, total_amount, status, shipping_address, payment_method) VALUES (?, ?, ?, ?, ?)",
+        const orderResult = await client.query(
+            "INSERT INTO orders (user_id, total_amount, status, shipping_address, payment_method) VALUES ($1, $2, $3, $4, $5) RETURNING id",
             [user_id, totalAmount, "pending", shipping_address, payment_method]
         );
 
-        const orderId = orderResult.insertId;
+        const orderId = orderResult.rows[0].id;
 
         // Insert into order_items table and update stock
         for (const item of cart) {
-            await connection.query(
-                "INSERT INTO order_items (order_id, product_id, quantity, selected_count_id, color, price) VALUES (?, ?, ?, ?, ?, ?)",
-                [orderId, item.product_id, item.quantity, item.selected_count_id, item.color, item.price]
+            await client.query(
+                "INSERT INTO order_items (order_id, product_id, quantity, selected_count_id, color, price) VALUES ($1, $2, $3, $4, $5, $6)",
+                [orderId, item.product_id, item.quantity, item.selected_count_id || null, item.color, item.price]
             );
 
-            await connection.query(
-                "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?",
+            await client.query(
+                "UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2",
                 [item.quantity, item.product_id]
             );
         }
 
         // Commit transaction
-        await connection.commit();
-        connection.release(); // Release connection back to pool
+        await client.query('COMMIT');
 
         // Fetch user email for notification
-        const [userRows] = await db.query("SELECT email FROM users WHERE id = ?", [user_id]);
-        const userEmail = userRows[0]?.email;
+        const userResult = await client.query("SELECT email FROM users WHERE id = $1", [user_id]);
+        const userEmail = userResult.rows[0]?.email;
 
         // Notify the user via email
         if (userEmail) {
@@ -75,12 +93,11 @@ exports.placeOrder = async (req, res) => {
 
         res.status(201).json({ message: "Order placed successfully!", orderId });
     } catch (err) {
-        if (connection) {
-            await connection.rollback(); // Rollback transaction on error
-            connection.release();
-        }
+        await client.query('ROLLBACK');
         console.error("Error placing order:", err);
-        res.status(500).json({ error: "Failed to place order" });
+        res.status(500).json({ error: "Failed to place order", details: err.message });
+    } finally {
+        client.release();
     }
 };
 
@@ -89,7 +106,7 @@ exports.getUserOrders = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const [rows] = await db.query(`
+        const result = await db.query(`
             SELECT 
                 o.id AS order_id,
                 o.created_at AS placed_on,
@@ -102,11 +119,11 @@ exports.getUserOrders = async (req, res) => {
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON oi.product_id = p.id
-            WHERE o.user_id = ?
+            WHERE o.user_id = $1
             ORDER BY placed_on DESC
         `, [id]);
 
-        if (!rows.length) {
+        if (!result.rows.length) {
             return res.status(404).json({ error: 'No orders found' });
         }
 
@@ -114,7 +131,7 @@ exports.getUserOrders = async (req, res) => {
         const orderIds = [];
         
         // Group items by order ID
-        const ordersMap = rows.reduce((acc, row) => {
+        const ordersMap = result.rows.reduce((acc, row) => {
             if (!acc[row.order_id]) {
                 acc[row.order_id] = {
                     order_id: row.order_id,
@@ -148,7 +165,7 @@ exports.getUserOrders = async (req, res) => {
 // Fetch All Orders
 exports.getAllOrders = async (req, res) => {
     try {
-        const [rows] = await db.query(`
+        const result = await db.query(`
             SELECT 
                 o.id AS order_id,
                 u.first_name,
@@ -170,12 +187,12 @@ exports.getAllOrders = async (req, res) => {
             ORDER BY o.created_at DESC
         `);
 
-        if (!rows.length) {
+        if (!result.rows.length) {
             return res.status(404).json({ error: 'No orders found' });
         }
 
         // Group items by order ID
-        const orders = rows.reduce((acc, row) => {
+        const orders = result.rows.reduce((acc, row) => {
             if (!acc[row.order_id]) {
                 acc[row.order_id] = {
                     order_id: row.order_id,
@@ -223,26 +240,26 @@ exports.updateOrderStatus = async (req, res) => {
         }
 
         // Update the order status in the database
-        const [result] = await db.query(
-            "UPDATE orders SET status = ? WHERE id = ?",
+        const result = await db.query(
+            "UPDATE orders SET status = $1 WHERE id = $2",
             [status, id]
         );
 
         // Check if the order was found and updated
-        if (result.affectedRows === 0) {
+        if (result.rowCount === 0) {
             return res.status(404).json({ message: "Order not found." });
         }
 
         // Fetch user email for notification
-        const [orderRows] = await db.query(
-            "SELECT user_id FROM orders WHERE id = ?",
+        const orderResult = await db.query(
+            "SELECT user_id FROM orders WHERE id = $1",
             [id]
         );
-        const userId = orderRows[0]?.user_id;
+        const userId = orderResult[0]?.user_id;
 
         if (userId) {
-            const [userRows] = await db.query("SELECT email FROM users WHERE id = ?", [userId]);
-            const userEmail = userRows[0]?.email;
+            const userResult = await db.query("SELECT email FROM users WHERE id = $1", [userId]);
+            const userEmail = userResult[0]?.email;
 
             // Notify the user via email
             if (userEmail) {
@@ -262,7 +279,7 @@ exports.deleteOrder = async (req, res) => {
     const { id } = req.params;
 
     try {
-        await db.query('DELETE FROM orders WHERE id = ?', [id]);
+        await db.query('DELETE FROM orders WHERE id = $1', [id]);
         res.json({ message: 'Order deleted successfully' });
     } catch (err) {
         console.error('Error deleting order:', err);
@@ -295,7 +312,6 @@ const notifyUserOrderPlaced = async (userEmail, orderId, cartItems) => {
             `,
         };
         await transporter.sendMail(mailOptions);
-        console.log(`Order confirmation email sent to ${userEmail}`);
     } catch (error) {
         console.error('Error sending order confirmation email:', error);
     }
@@ -316,7 +332,6 @@ const notifyUserOrderStatusUpdate = async (userEmail, orderId, status) => {
             `,
         };
         await transporter.sendMail(mailOptions);
-        console.log(`Order status update email sent to ${userEmail}`);
     } catch (error) {
         console.error('Error sending order status update email:', error);
     }

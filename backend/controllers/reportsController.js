@@ -22,15 +22,15 @@ exports.getMonthlySales = async (req, res) => {
         // Fetch monthly sales data
         const query = `
             SELECT 
-                DATE_FORMAT(created_at, '%Y-%m') AS month, 
+                TO_CHAR(created_at, 'YYYY-MM') AS month, 
                 SUM(total_amount) AS total_sales
             FROM orders
-            WHERE created_at BETWEEN ? AND ?
-            GROUP BY month
+            WHERE created_at BETWEEN $1 AND $2
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM')
             ORDER BY month ASC
         `;
-        const [rows] = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
-        res.status(200).json(rows);
+        const result = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -60,13 +60,13 @@ exports.getTopProducts = async (req, res) => {
                 SUM(oi.quantity * oi.price) AS total_revenue
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
-            WHERE oi.created_at BETWEEN ? AND ?
+            WHERE oi.created_at BETWEEN $1 AND $2
             GROUP BY p.name
             ORDER BY total_revenue DESC
             LIMIT 5
         `;
-        const [rows] = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
-        res.status(200).json(rows);
+        const result = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -92,15 +92,15 @@ exports.getNewCustomersPerMonth = async (req, res) => {
 
         const query = `
             SELECT 
-                DATE_FORMAT(created_at, '%Y-%m') AS month, 
+                TO_CHAR(created_at, 'YYYY-MM') AS month, 
                 COUNT(*) AS new_customers
             FROM users
-            WHERE role = 'customer'
-            GROUP BY month
+            WHERE role = 'customer' AND created_at BETWEEN $1 AND $2
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM')
             ORDER BY month ASC
         `;
-        const [rows] = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
-        res.status(200).json(rows);
+        const result = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -131,10 +131,13 @@ exports.getRevenueByYarnType = async (req, res) => {
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             JOIN yarn_types yt ON p.type_id = yt.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.created_at BETWEEN $1 AND $2
             GROUP BY yt.name
+            ORDER BY total_revenue DESC
         `;
-        const [rows] = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
-        res.status(200).json(rows);
+        const result = await db.query(query, [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]]);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

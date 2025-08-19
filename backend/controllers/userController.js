@@ -6,13 +6,13 @@ exports.getUserProfile = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const [rows] = await db.query('SELECT id, first_name, last_name, email, gender, contact_no FROM users WHERE id = ?', [id]);
+        const result = await db.query('SELECT id, first_name, last_name, email, gender, contact_no FROM users WHERE id = $1', [id]);
 
-        if (!rows.length) {
+        if (!result.rows.length) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.json(rows[0]); // Return the user profile
+        res.json(result.rows[0]); // Return the user profile
     } catch (err) {
         console.error('Error fetching user profile:', err);
         res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -26,7 +26,7 @@ exports.updateUserProfile = async (req, res) => {
 
     try {
         await db.query(
-            'UPDATE users SET first_name = ?, last_name = ?, email = ?, gender = ?, contact_no = ? WHERE id = ?',
+            'UPDATE users SET first_name = $1, last_name = $2, email = $3, gender = $4, contact_no = $5 WHERE id = $6',
             [firstName, lastName, email, gender, contactNo, id]
         );
 
@@ -44,12 +44,12 @@ exports.changePassword = async (req, res) => {
 
     try {
         // Fetch the user's current password hash
-        const [rows] = await db.query('SELECT password_hash FROM users WHERE id = ?', [id]);
-        if (!rows.length) {
+        const result = await db.query('SELECT password_hash FROM users WHERE id = $1', [id]);
+        if (!result.rows.length) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const storedHash = rows[0].password_hash;
+        const storedHash = result.rows[0].password_hash;
 
         // Compare the current password with the stored hash
         const isMatch = await bcrypt.compare(currentPassword, storedHash);
@@ -61,7 +61,7 @@ exports.changePassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Update the password in the database
-        await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hashedPassword, id]);
+        await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashedPassword, id]);
 
         res.json({ message: 'Password updated successfully' });
     } catch (err) {
@@ -74,16 +74,16 @@ exports.changePassword = async (req, res) => {
 exports.getAllCustomers = async (req, res) => {
     try {
         // Query the database for users with role = 'customer'
-        const [rows] = await db.query(
-            'SELECT id, first_name, last_name, email, gender, contact_no, created_at FROM users WHERE role = ? ORDER BY created_at DESC',
+        const result = await db.query(
+            'SELECT id, first_name, last_name, email, gender, contact_no, created_at FROM users WHERE role = $1 ORDER BY created_at DESC',
             ['customer']
         );
 
-        if (!rows.length) {
+        if (!result.rows.length) {
             return res.status(404).json({ error: 'No customers found' });
         }
 
-        res.json(rows); // Return the list of customers
+        res.json(result.rows); // Return the list of customers
     } catch (err) {
         console.error('Error fetching customers:', err);
         res.status(500).json({ error: 'Failed to fetch customers' });
@@ -96,7 +96,7 @@ exports.deleteCustomer = async (req, res) => {
 
     try {
         // Ensure only customers can be deleted (not admins)
-        await db.query('DELETE FROM users WHERE id = ? AND role = "customer"', [id]);
+        await db.query("DELETE FROM users WHERE id = $1 AND role = 'customer'", [id]);
         res.json({ message: 'Customer deleted successfully' });
     } catch (err) {
         console.error('Error deleting customer:', err);

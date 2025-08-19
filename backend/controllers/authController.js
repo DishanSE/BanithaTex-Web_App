@@ -12,7 +12,7 @@ exports.signup = async (req, res) => {
         const { first_name, last_name, email, gender, contact_no, password, role } = req.body;
 
         // Check if user already exists
-        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         if (rows.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
@@ -28,7 +28,7 @@ exports.signup = async (req, res) => {
 
         // Insert user into database with the correct role
         await db.query(
-            'INSERT INTO users (first_name, last_name, email, gender, contact_no, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO users (first_name, last_name, email, gender, contact_no, password_hash, role) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [first_name, last_name, email, gender, contact_no, passwordHash, role || 'customer']
         );
 
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
 
         // Find user by email
-        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        const { rows } = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         if (rows.length === 0) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
@@ -96,7 +96,7 @@ exports.getUser = async (req, res) => {
         }
 
         // Fetch the authenticated user's details from the database
-        const [rows] = await db.query('SELECT id, email, role FROM users WHERE id = ?', [req.user.id]);
+        const { rows } = await db.query('SELECT id, email, role FROM users WHERE id = $1', [req.user.id]);
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
@@ -121,7 +121,7 @@ exports.forgotPassword = async (req, res) => {
 
     try {
         // Check if the user exists
-        const [rows] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        const { rows } = await db.query('SELECT id FROM users WHERE email = $1', [email]);
         if (rows.length === 0) {
             return res.status(404).json({ message: 'User not found.' });
         }
@@ -138,7 +138,7 @@ exports.forgotPassword = async (req, res) => {
         // Save the token in the database
         const expiresAt = new Date(Date.now() + 3600000); // Token expires in 1 hour
         await db.query(
-            'UPDATE users SET reset_password_token = ?, reset_password_expires = ? WHERE id = ?',
+            'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3',
             [token, expiresAt, userId]
         );
 
@@ -180,7 +180,7 @@ exports.resetPassword = async (req, res) => {
 
         // Fetch user details from the database
         const [rows] = await db.query(
-            `SELECT id FROM users WHERE id = ? AND reset_password_token = ? AND reset_password_expires > NOW()`,
+            `SELECT id FROM users WHERE id = $1 AND reset_password_token = $2 AND reset_password_expires > NOW()`,
             [decoded.id, token]
         );
 
@@ -196,8 +196,8 @@ exports.resetPassword = async (req, res) => {
         // Update the user's password_hash and clear the reset token
         await db.query(
             `UPDATE users 
-             SET password_hash = ?, reset_password_token = NULL, reset_password_expires = NULL 
-             WHERE id = ?`,
+             SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL 
+             WHERE id = $2`,
             [hashedPassword, userId]
         );
 
