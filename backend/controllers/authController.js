@@ -180,16 +180,16 @@ exports.resetPassword = async (req, res) => {
         }
 
         // Fetch user details from the database
-        const [rows] = await db.query(
+        const result = await db.query(
             `SELECT id FROM users WHERE id = $1 AND reset_password_token = $2 AND reset_password_expires > NOW()`,
             [decoded.id, token]
         );
 
-        if (rows.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(400).json({ message: "Invalid or expired token." });
         }
 
-        const userId = rows[0].id;
+        const userId = result.rows[0].id;
 
         // Hash the new password
         const hashedPassword = await bcrypt.hash(password, 10);
